@@ -23,9 +23,11 @@ This simulation includes topics of death, substance use, psychosis, and mental h
   
 - Major Depressive Disorder: The agent starts off with a significantly lower baseline mood, and with lower dopamine firing rates. A small amount of receptors is also downregulated
   
-- Bipolar Depression: The agent starts off manic, with high downregulation having developed as a result to previously elevated dopamine levels during mania, and after the first second of the simulation, clearance and dopamine production revert back to normal, resembling a bipolar crash, and having the agent need time for the downregulated dopamine receptors to recover
+- Bipolar Depression: The agent will start off with high downregulation having developed as a result to previously chronically elevated dopamine levels during mania, resembling a bipolar crash, and having the agent need time for those downregulated dopamine receptors to recover
 
 ### 2. Then, each second, you will see an entry containing:
+
+- Time: How much time has passed in the simulation since it has started
 
 - Activity: This shows what the agent is currently doing. Every time it is about to start an activity, it has a small number of random activities to choose from, and it is capable of prioritizing activities it finds pleasant
 
@@ -68,6 +70,8 @@ This simulation includes topics of death, substance use, psychosis, and mental h
 
  - Force a manic episode: If the agent is not in a manic episode driven by Bipolar Disorder already, it will shift towards mania. If the agent does not have Bipolar Disorder, choosing this option will also lead to the agent having it from that point
 
+ - Force a crash from a manic episode: This will simulate a forced crash from a manic episode, regardless of whether or not the individual is manic
+
  - Medication reset: This instantly clears all stimulants, antipsychotics and dissociatives from the body
 
  - Do nothing: This option just lets the script continue running
@@ -78,4 +82,4 @@ This simulation includes topics of death, substance use, psychosis, and mental h
 
 - In the IDE I use, a delusion has the standard, in my case, blue, font color while a hallucination has a red font. How they will look like for you will depend on the IDE, and it is possible for some not to separate the font colors between those two at all, although by the content of the message, and, if details have been toggled to true, you can also tell by checking the engagement levels in percent (if they are over 900%, it is a hallucination)
 
-- The lines of code that follow a hashtag are outdated and were kept in case I had to revert to them. You can ignore them, or, if you want to modify the file, you can remove them
+- I am generally more likely to update the script than the README.md, I still try updating it shortly after updating the script though
