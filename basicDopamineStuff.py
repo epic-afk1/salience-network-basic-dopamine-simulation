@@ -595,8 +595,6 @@ while script_running==True:
             print("Bipolar cycling happens in "+str(cyclingCounter)+"s")
         if x > 0:
             x -= 1
-        previous_SN_DA=SN_DA
-        previous_relativeDopaminePerception=relativeDopaminePerception
         tonic_frequency=round(3 * dopamine_relative_activity)
         clearanceRate=1-remainedAfterSecond
         SN_DA-= SN_DA * clearanceRate * ((1 - (stimulants / (10 + stimulants))))
@@ -926,10 +924,7 @@ while script_running==True:
             learned_change=50
         elif learned_change<-50:
             learned_change=-50
-        expectations[activity]=round(expectation+learned_change,2)       
-        
-        if expectations[activity]<1:
-            expectations[activity]=1
+        expectations[activity]=max(1,round(expectation+learned_change,2))      
         
         if stimulants>0 and "stimulant injection" in expectations:
             expectations["stimulant injection"]=round(expectations["stimulant injection"]+learned_change*round(stimulants / (15 + stimulants),2),2) # An attempt at implementing addiction at higher doses, by making them think that they liked an activity more on them due to high engagement levels lifting the mood
@@ -999,7 +994,6 @@ while script_running==True:
             speed_up=not speed_up
             manual_input=False
             print("Maximum speed has been toggled to "+str(speed_up).lower()+"!")
-            script_running=False
         elif optionChosen==5:
             print(["antipsychotic injection", "antipsychotic oral use","dissociative nasal use", "stimulant injection", "stimulant oral use","dissociative oral use"])
         elif optionChosen==6:
@@ -1030,6 +1024,7 @@ while script_running==True:
             print("Stimulant, dissociative and antipsychotic blood levels have been reset to zero!")
         elif optionChosen==10:
             print("Script ended!")
+            script_running=False
         else:
             print("Script continues!")
 
