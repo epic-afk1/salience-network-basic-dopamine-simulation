@@ -65,7 +65,7 @@ if simulation.lower()=="schizoaffective disorder bipolar type":
 elif simulation.lower()=="bipolar depression":
     tolerance=60
     simulation="mania"
-    cyclingCounter=1
+    cyclingCounter=0
 
 if simulation.lower()=="schizophrenia":
     tolerance=-50
@@ -1008,13 +1008,20 @@ while script_running==True:
         elif optionChosen==7:
             if bipolar!="mania":
                 bipolar="idle"
-                cyclingCounter=1
+                cyclingCounter=0
             print("Shifting to mania!")
         elif optionChosen==8:
             if bipolar!="mania":
                 bipolar="mania"
-            cyclingCounter=1
-            print("Shifting to a crash of a manic episode!")
+                dopamine_relative_lower_cap=dopamine_relative_lower_cap*4
+                dopamine_relative_upper_cap=dopamine_relative_upper_cap*4
+                remainedAfterSecond=remainedAfterSecond*2
+                dopamine_relative_activity=max(dopamine_relative_activity,dopamine_relative_lower_cap)
+                psychosisRisk=max(psychosisRisk, 50)
+                tolerance=60
+                acuteTolerance=60
+            cyclingCounter=0
+            print("Shifting to a crash from a manic episode!")
         elif optionChosen==9:
             stimulants=0
             typical_antipsychotics=0
