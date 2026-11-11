@@ -4,7 +4,6 @@ dopamine_relative_activity=1 #default: 1, from 0.5 to 1
 dopamine_relative_lower_cap=0.5
 dopamine_relative_upper_cap=1
 increase=5 #unit: nanomolar, default: 5
-#tonic_frequency=3 * (1*dopamine_relative_activity) #unit: Hz, default: 3 * (1*dopamine_relative_activity), only modify if fine-tuning simulations, update: outdated
 usual_baseline=20
 remainedAfterSecond=0.03125  #default: 0.03125
 expectations={}
@@ -19,7 +18,13 @@ simulation_list=["default", "random", "Schizophrenia", "Schizoaffective Disorder
 for i in simulation_list:
     print(str(simulation_list.index(i)+1)+": "+i)
 
-simulation=simulation_list[int(input("Input the number of your desired simulation: ").strip())-1].lower().strip()
+errorResolved=False
+while errorResolved==False:
+    try:
+        simulation=simulation_list[int(input("Input the number of your desired simulation: ").strip())-1].lower().strip()
+        errorResolved=True
+    except:
+        print("Not a valid input! Try again")
 
 tolerance=0 # In percent, from -70 to 60, default = 0
 bipolar="none" # Options: "none", "idle", "mania" (note: "idle" includes both inter-episodes and depressive episodes, as this script only covers the dopamine aspects of the condition)"
@@ -65,14 +70,14 @@ elif simulation.lower()=="bipolar depression":
 if simulation.lower()=="schizophrenia":
     tolerance=-50
     psychosisRisk=75
-    nmda_active=75
-    nmda_cap=85
+    nmda_active=70
+    nmda_cap=80
     
 elif simulation.lower()=="schizotypal personality disorder":
     tolerance=-30
     psychosisRisk=25
-    nmda_active=85
-    nmda_cap=95
+    nmda_active=80
+    nmda_cap=90
     
 elif simulation.lower()=="adhd":
     dopamine_relative_upper_cap=0.8
@@ -89,7 +94,6 @@ elif simulation.lower()=="mania":
     
 elif simulation.lower()=="major depressive disorder":
     tolerance=5
-    dopamine_relative_activity=0.5
     mood=0.1
 
 
@@ -545,6 +549,8 @@ def handle_interrupt(signum, frame):
 
 signal.signal(signal.SIGINT, handle_interrupt)
 
+timePassed = 0
+
 while script_running==True:
     if choosingOption == False:
         if bipolar!="none":
@@ -562,8 +568,28 @@ while script_running==True:
                     dopamine_relative_lower_cap=dopamine_relative_lower_cap/4
                     dopamine_relative_upper_cap=dopamine_relative_upper_cap/4
                     remainedAfterSecond=remainedAfterSecond/2
+
+
+        days=int(timePassed/(24*60*60))
+        hours=int(timePassed/(60*60) - days*24)
+        minutes=int(timePassed/60 - hours*60 - days*60*24)
+        seconds=int(timePassed - minutes*60 - hours*60*60 - days*60*60*24)
+        
+        timeString="Time passed in simulation: "
+         
+        if days!=0:
+            timeString=timeString + str(days) + " days, "
+        if hours!=0:
+            timeString=timeString + str(hours) + " hours, "
+        if minutes!=0:
+            timeString=timeString + str(minutes) + "  minutes and "
+        timeString=timeString + str(seconds) + " seconds"
+
+        print(timeString)
+        
         if speed_up==False:
             time.sleep(1)
+        timePassed = round(timePassed + 1)
         if show_details==True and bipolar!="none":
             print("Currently manic: "+str(bipolar=="mania").lower())
             print("Bipolar cycling happens in "+str(cyclingCounter)+"s")
@@ -573,7 +599,7 @@ while script_running==True:
         previous_relativeDopaminePerception=relativeDopaminePerception
         tonic_frequency=round(3 * dopamine_relative_activity)
         clearanceRate=1-remainedAfterSecond
-        SN_DA-= SN_DA * clearanceRate * ((1 - (stimulants / (10 + stimulants)))) # (stimulants / (10 + stimulants))
+        SN_DA-= SN_DA * clearanceRate * ((1 - (stimulants / (10 + stimulants))))
         inMind="idle"
         if len(expectations)>0:
             highest_valued_activity=max(expectations,key=expectations.get)
@@ -597,7 +623,13 @@ while script_running==True:
                 if activity in activity_pool:
                     reward = round(activity_pool[activity]*mood)
                 elif activity!="idle" and activity not in expectations:
-                    activity_pool[activity]=round(int(input("How rewarding was the activity (neutral: 50)? ").strip()),2)
+                    errorResolved=False
+                    while errorResolved==False:
+                        try:
+                            activity_pool[activity]=round(int(input("How rewarding was the activity (neutral: 50)? ").strip()),2)
+                            errorResolved=True
+                        except:
+                            print("Not a valid input! Try again")         
                     reward = round(activity_pool[activity]*mood)
                 else:
                     reward=round(50*mood)
@@ -606,7 +638,13 @@ while script_running==True:
                 if activity in activity_durations:
                     x = activity_durations[activity]
                 elif activity!="idle":
-                    x=int(input("How long does the activity take in seconds? ").strip())
+                    errorResolved=False
+                    while errorResolved==False:
+                        try:
+                            x=int(input("How long does the activity take in seconds? ").strip())
+                            errorResolved=True
+                        except:
+                            print("Not a valid input! Try again")    
                     activity_durations[activity]=x
                 else:
                     x=1
@@ -673,10 +711,6 @@ while script_running==True:
                     if "dissociative_oral_"+str(j) not in list(medications_being_absorbed.keys()):
                        addedToAbsorptionList=True
                        medications_being_absorbed["dissociative_oral_"+str(j)]=3600
-           # elif activity=="medication reset":
-                #stimulants=0
-                #typical_antipsychotics=0
-                #print("Stimulant and antipsychotic blood levels have been reset to zero!")
 
         for i in list(medications_being_absorbed.keys()):
             if medications_being_absorbed[i]>0:
@@ -770,19 +804,11 @@ while script_running==True:
             SN_DA=1000
 
         if show_details==True:
-            print("Death likelihood from 1 to 99: "+str(deathChance))
+            print("Death chance: "+str(round(deathChance,2))+"%")
             print("DA levels in the SN: " +str(SN_DA))
             print("Stimulant amount: "+str(round(stimulants,2))+"mg")
             print("Antipsychotic amount: "+str(round(typical_antipsychotics,2))+"mg")
             print("Dissociative amount: "+str(round(dissociatives,2))+"mg")
-        #print(activity_history)
-        #relative=0.25*((SN_DA*relativeDopaminePerception/(previous_SN_DA*previous_relativeDopaminePerception))-relative) < old variant, it's now updated to implement acute tolerance
-        #if SN_DA*relativeDopaminePerception<round(usual_baseline/2) and relative>round(SN_DA*relativeDopaminePerception/round(usual_baseline/2),2):
-            #relative=round(SN_DA*relativeDopaminePerception/round(usual_baseline/2),2)
-        #if relative/(SN_DA*relativeDopaminePerception/usual_baseline)<0.75 and tolerance<random.randint(30,60) and relative>0.9:
-            #tolerance=round(tolerance+0.01,2)
-        #elif relative<=0.9 and tolerance>0:
-            #tolerance=round(tolerance-0.01,2)
         
         relative=round(SN_DA*relativeDopaminePerception/usual_baseline,2)
         if relative>1 and acuteTolerance<60:
@@ -909,23 +935,19 @@ while script_running==True:
             expectations["stimulant injection"]=round(expectations["stimulant injection"]+learned_change*round(stimulants / (15 + stimulants),2),2) # An attempt at implementing addiction at higher doses, by making them think that they liked an activity more on them due to high engagement levels lifting the mood
             if expectations["stimulant injection"]<2:
                 expectations["stimulant injection"]=2
-            #expectations["stimulant oral use"]=expectations["stimulant injection"]-1 # The small difference only so if the AI has to choose between those two, it will pick the faster route, and exclusively if the AI has had a stimulant injection, update: nevermind
         elif stimulants>0 and "stimulant oral use" in expectations:
             expectations["stimulant oral use"]=round(expectations["stimulant oral use"]+learned_change*round(stimulants / (15 + stimulants),2),2)
             if expectations["stimulant oral use"]<1:
                 expectations["stimulant oral use"]=1
-            #expectations["stimulant injection"]=expectations["stimulant oral use"]+1
 
         if typical_antipsychotics>0 and "antipsychotic injection" in expectations: # Now this will be here too so the AI updates its expectations on its antipsychotics depending on how much it is active right now, because the numbing effects can be unpleasant and affect moods
             expectations["antipsychotic injection"]=round(expectations["antipsychotic injection"]+learned_change*round(1 - 0.47 ** typical_antipsychotics,2),2) 
             if expectations["antipsychotic injection"]<1:
                 expectations["antipsychotic injection"]=1
-            #expectations["antipsychotic oral use"]=expectations["antipsychotic injection"]+1 # I assume oral consumption is slightly more pleasant than an injection, update: nevermind I disabled it anyway to make the script less messy
         elif typical_antipsychotics>0 and "antipsychotic oral use" in expectations:
             expectations["antipsychotic oral use"]=round(expectations["antipsychotic oral use"]+learned_change*round(1 - 0.47 ** typical_antipsychotics,2),2)
             if expectations["antipsychotic oral use"]<2:
                 expectations["antipsychotic oral use"]=2
-            #expectations["antipsychotic injection"]=expectations["antipsychotic oral use"]-1
 
         if dissociatives>0 and "dissociative nasal use" in expectations:
             expectations["dissociative nasal use"]=round(expectations["dissociative nasal use"]+learned_change*0.1,2) 
@@ -941,21 +963,30 @@ while script_running==True:
             print(delusion)
         elif hallucination!="idle":
             sys.stderr.write(hallucination+"\n")
-        #print("Expectation anomaly: "+str(anomaly))
+
         print("")
     else:
         print("What do you want to do?")
         print("Option 1: Toggle manual input")
         print("Option 2: Toggle details")
         print("Option 3: Show the on-going simulation")
-        print("Option 4: Toggle maximum speed (manual input will be disabled)")
-        print("Option 5: End the script")
-        print("Option 6: Show medication-related activities")
-        print("Option 7: Force a psychotic episode")
-        print("Option 8: Force a manic episode")
+        print("Option 4: Toggle maximum speed (manual input will be disabled!)")
+        print("Option 5: Show medication-related possible activities")
+        print("Option 6: Force a psychotic episode")
+        print("Option 7: Force a manic episode")
+        print("Option 8: Force a crash from a manic episode")
         print("Option 9: Medication reset")
-        print("Option 10: Do nothing")
-        optionChosen=int(input("Input the number of the option you want: ").strip())
+        print("Option 10: End the script")
+        print("Any other number: Do nothing")
+        
+        errorResolved=False
+        while errorResolved==False:
+            try:
+                optionChosen=int(input("Input the number of the option you want: ").strip())
+                errorResolved=True
+            except:
+                print("Not a valid input! Try again")
+                
         if optionChosen==1:
             manual_input=not manual_input
             print("Manual input has been toggled to "+str(manual_input).lower()+"!")
@@ -968,25 +999,30 @@ while script_running==True:
             speed_up=not speed_up
             manual_input=False
             print("Maximum speed has been toggled to "+str(speed_up).lower()+"!")
-        elif optionChosen==5:
-            print("Script ended!")
             script_running=False
-        elif optionChosen==6:
+        elif optionChosen==5:
             print(["antipsychotic injection", "antipsychotic oral use","dissociative nasal use", "stimulant injection", "stimulant oral use","dissociative oral use"])
-        elif optionChosen==7:
+        elif optionChosen==6:
             psychosisRisk=95
             print("Psychosis risk set to 95%!")
-        elif optionChosen==8:
+        elif optionChosen==7:
             if bipolar!="mania":
                 bipolar="idle"
                 cyclingCounter=1
             print("Shifting to mania!")
+        elif optionChosen==8:
+            if bipolar!="mania":
+                bipolar="mania"
+            cyclingCounter=1
+            print("Shifting to a crash of a manic episode!")
         elif optionChosen==9:
             stimulants=0
             typical_antipsychotics=0
             dissociatives=0
             medications_being_absorbed={}
             print("Stimulant, dissociative and antipsychotic blood levels have been reset to zero!")
+        elif optionChosen==10:
+            print("Script ended!")
         else:
             print("Script continues!")
 
