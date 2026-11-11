@@ -77,3 +77,5 @@ This simulation includes topics of death, substance use, psychosis, and mental h
 - Once you have the file on your local device, you can republish it, modify it, test it, use it as a tool for your own project, or do whatever else you can think of. You do not have to credit me at all, although if you do attempt modifying the script, I can imagine it being a bit difficult because of my messy structure and limited programming skills. I wish you to have fun regardless!
 
 - In the IDE I use, a delusion has the standard, in my case, blue, font color while a hallucination has a red font. How they will look like for you will depend on the IDE, and it is possible for some not to separate the font colors between those two at all, although by the content of the message, and, if details have been toggled to true, you can also tell by checking the engagement levels in percent (if they are over 900%, it is a hallucination)
+
+- The lines of code that follow a hashtag are outdated and were kept in case I had to revert to them. You can ignore them, or, if you want to modify the file, you can remove them
