@@ -35,7 +35,7 @@ This simulation includes topics of death, substance use, psychosis, and mental h
 
 - There will also be an additional line for whenever the AI is thinking of an activity, or whenever a hallucination or a delusion has triggered
 
-## 3. With CTRL + C, you can choose following options before the next entry:
+### 3. With CTRL + C, you can choose following options before the next entry:
 
 - Toggle manual input: If this is toggled to true, you can type in what the agent does as soon as it starts a new activity, or shortly after it transitions to doing nothing. If the input is not recognized to have existing values, you will be asked how rewarding the activity is, with 50 being neutral, anything lower being unpleasant and anything higher being pleasant (for example, 80 would be highly rewarding, although you can also input absurdly high numbers like 1000 if you want to). The already-existing activities range from 2 to 95. You will also be asked how long the activity takes in seconds
 
@@ -72,7 +72,7 @@ This simulation includes topics of death, substance use, psychosis, and mental h
 
  - Do nothing: This option just lets the script continue running
 
-## 4. Additional notes
+## Additional notes
 
 - Once you have the file on your local device, you can republish it, modify it, test it, use it as a tool for your own project, or do whatever else you can think of. You do not have to credit me at all, although if you do attempt modifying the script, I can imagine it being a bit difficult because of my messy structure and limited programming skills. I wish you to have fun regardless!
 
