@@ -550,6 +550,7 @@ def handle_interrupt(signum, frame):
 signal.signal(signal.SIGINT, handle_interrupt)
 
 timePassed = 0
+engagement_level="neutral"
 
 while script_running==True:
     if choosingOption == False:
@@ -607,7 +608,7 @@ while script_running==True:
                 SN_DA+=0.1*expectations[highest_valued_activity]*dopamine_relative_activity
         
         if x == 0:
-            if randomrandint==1 or manual_input==True:
+            if (randomrandint==1 or manual_input==True) and engagement_level!="frozen":
                 if manual_input==False:
                     activity="random"
                 else:
@@ -724,7 +725,7 @@ while script_running==True:
                             
         previous_nmda_active_total = nmda_active_total
 
-        nmda_blocked=round(dissociatives/body_weight / (dissociatives/body_weight+1.5),2) * 100 # In percent, from 0 to 100, default = round(dissociatives/body_weight / (dissociatives/body_weight+1.5),2) * 100
+        nmda_blocked=round(dissociatives/body_weight / (dissociatives/body_weight+1.5),4) * 100 # In percent, from 0 to 100, default = round(dissociatives/body_weight / (dissociatives/body_weight+1.5),4) * 100
         if nmda_blocked<0:
             nmda_blocked=0
         nmda_active_total=nmda_active-nmda_blocked
@@ -745,10 +746,11 @@ while script_running==True:
         relative_recovery = min(4,round(1 + max(0,nmda_active_total-previous_nmda_active_total) * max(0,100-nmda_active_total),2))
 
         stim_strain = stimulants**3 / 10000000
+        antipsychotic_strain = typical_antipsychotics**3 / 5000000
         nmda_deviation = abs(1 - (nmda_active_total / 100))**4
         nmda_excitotoxicity = max(0, (nmda_active_total / 100)**2 - 1)
 
-        deathChance = round(deathChance + (stim_strain + nmda_deviation + nmda_excitotoxicity - 0.1)/20, 3)
+        deathChance = round(deathChance + (stim_strain + antipsychotic_strain + nmda_deviation + nmda_excitotoxicity - 0.1)/20, 3)
         
         if deathChance>99:
             deathChance=99
@@ -808,7 +810,7 @@ while script_running==True:
             print("Antipsychotic amount: "+str(round(typical_antipsychotics,2))+"mg")
             print("Dissociative amount: "+str(round(dissociatives,2))+"mg")
         
-        relative=round(SN_DA*relativeDopaminePerception/usual_baseline,2)
+        relative=round(SN_DA*relativeDopaminePerception/usual_baseline,4)
         if relative>1 and acuteTolerance<60:
             acuteTolerance=round(acuteTolerance+0.02,2)
         elif relative<1 and acuteTolerance>tolerance:
@@ -825,8 +827,9 @@ while script_running==True:
         if acuteTolerance>tolerance and relative>1 and random.randint(1,250)==1:
             tolerance=round(tolerance+0.01,2)
 
-        if relative<0.1:
-            relative = 0.1
+        if relative<0.0001:
+            relative=0.0001 # Such a low value shouldn't really be possible but if it is, realistically the agent would not survive it
+            deathChance=99
         elif relative>10:
             relative=10
         
@@ -838,8 +841,11 @@ while script_running==True:
             engagement_level="neutral"
         elif relative > 0.8 and relative <= 0.9:
             engagement_level="unengaged"
-        else:
+        elif relative > 0.05:
             engagement_level="dull"
+        else:
+            engagement_level="frozen"
+            x=0
 
         if relative>1:
             dopamine_relative_activity=round(dopamine_relative_activity-0.01,2)
