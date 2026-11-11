@@ -589,14 +589,11 @@ while script_running==True:
                 else:
                     activity=input("What is the AI engaged with? ").lower().strip()
                 if activity=="random":
-                    available_activities=random.sample(list(activity_pool.keys()),round(len(list(activity_pool.keys()))/8))
+                    available_activities=random.sample(list(activity_pool.keys()),round(len(list(activity_pool.keys()))/10))
                     activity = random.choice(available_activities)
                     for i in available_activities:
-                        if i in expectations:
-                            if activity not in expectations:
-                                activity=i
-                            elif expectations[i]>expectations[activity] and expectations[i]>50:
-                                activity=i
+                        if i in expectations and (activity in expectations and expectations[i]>expectations[activity] or activity not in expectations) and expectations[i]>50:
+                            activity=i
                 if activity in activity_pool:
                     reward = round(activity_pool[activity]*mood)
                 elif activity!="idle" and activity not in expectations:
