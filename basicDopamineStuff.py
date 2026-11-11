@@ -934,8 +934,8 @@ while script_running==True:
         
         if stimulants>0 and "stimulant injection" in expectations:
             expectations["stimulant injection"]=round(expectations["stimulant injection"]+learned_change*round(stimulants / (15 + stimulants),2),2) # An attempt at implementing addiction at higher doses, by making them think that they liked an activity more on them due to high engagement levels lifting the mood
-            if expectations["stimulant injection"]<2:
-                expectations["stimulant injection"]=2
+            if expectations["stimulant injection"]<1:
+                expectations["stimulant injection"]=1
         elif stimulants>0 and "stimulant oral use" in expectations:
             expectations["stimulant oral use"]=round(expectations["stimulant oral use"]+learned_change*round(stimulants / (15 + stimulants),2),2)
             if expectations["stimulant oral use"]<1:
@@ -947,8 +947,8 @@ while script_running==True:
                 expectations["antipsychotic injection"]=1
         elif typical_antipsychotics>0 and "antipsychotic oral use" in expectations:
             expectations["antipsychotic oral use"]=round(expectations["antipsychotic oral use"]+learned_change*round(1 - 0.47 ** typical_antipsychotics,2),2)
-            if expectations["antipsychotic oral use"]<2:
-                expectations["antipsychotic oral use"]=2
+            if expectations["antipsychotic oral use"]<1:
+                expectations["antipsychotic oral use"]=1
 
         if dissociatives>0 and "dissociative nasal use" in expectations:
             expectations["dissociative nasal use"]=round(expectations["dissociative nasal use"]+learned_change*0.1,2) 
@@ -956,8 +956,8 @@ while script_running==True:
                 expectations["dissociative nasal use"]=1
         elif dissociatives>0 and "dissociative oral use" in expectations:
             expectations["dissociative oral use"]=round(expectations["dissociative oral use"]+learned_change*0.1,2)
-            if expectations["dissociative oral use"]<2:
-                expectations["dissociative oral use"]=2
+            if expectations["dissociative oral use"]<1:
+                expectations["dissociative oral use"]=1
             
            
         if delusion!="idle":
