@@ -90,6 +90,9 @@ elif simulation.lower()=="adhd": # This profile simulates the High-DAT subgroup 
     dat_relative_lower_cap=1.1
     dat_relative_upper_cap=1.5
     dat_relative_activity=1.3
+    dopamine_relative_activity=0.8 # It should automatically start off at 0.8 already because of the default value 1 being higher than dopamine_relative_upper_cap and therefore overwritten
+    #but I still added this for the potential future scenario of ADHD and Bipolar at once, which overwrites the lower and upper cap
+    #so this is to have dopamine_relative_activity start with a baseline of 0.8 and shift depending on the Bipolar episode
     
 elif simulation.lower()=="mania":
     bipolar=True
@@ -137,7 +140,7 @@ activity_pool = {
     "folding warm laundry": 46, "polishing a pair of shoes": 41, "watching the rain fall": 53,
     "drinking a warm cup of tea": 68, "re-reading an old message": 57, "singing in the shower": 63,
     "brushing your teeth": 45, "applying nice smelling lotion": 51, "looking at old photographs": 67, "stimulant injection":50, "dissociative nasal use":50,
-    #"antipsychotic injection":50, "stimulant oral use":50, "antipsychotic oral use":50,
+    # Some medications are excluded to avoid the agent self-medicating non-recreational substances
     
     # 🟠 Monotonous / Low-Reward Chores (20-39)
     "doing household dishes": 25, "taking out the heavy trash": 22, "folding bed sheets": 31,
@@ -807,9 +810,9 @@ while script_running==True:
             dat_relative_activity=max(round(dat_relative_activity-0.000042,6),dat_relative_lower_cap)
                 
         
-        if relative>1 and acuteTolerance<60:
+        if relative>1 and acuteTolerance<60 and (relative>1.1 or bipolar==False): # Receptor downregulation and upregulation are often delayed in individuals with Bipolar Disorder
             acuteTolerance=round(acuteTolerance+0.02,2)
-        elif relative<1 and acuteTolerance>tolerance:
+        elif relative<1 and acuteTolerance>tolerance and (relative<0.9 or bipolar==False):
             acuteTolerance=round(acuteTolerance-0.02,2)
         elif relative<1 and acuteTolerance==tolerance and tolerance>-70 and random.randint(1,250)==1:
             tolerance=round(tolerance-0.01,2)
@@ -851,7 +854,7 @@ while script_running==True:
         if bipolar==True: # DAT density getting out of control if dopamine levels escalate (too much or too little) in an individual with Bipolar Disorder
             if relative>1.5:
                 dat_relative_activity=max(round(dat_relative_activity-0.0002,6),dat_relative_lower_cap)
-                if random.randint(1,25)==1: # Uncontrolled increases in firing in people with Bipolar Disorder if dopamine levels overwhelm the salience network
+                if random.randint(1,10)==1: # Uncontrolled increases in firing in people with Bipolar Disorder if dopamine levels overwhelm the salience network
                     dopamine_relative_activity=round(dopamine_relative_activity + relative*random.randint(1,10)/100,2)
             elif relative<0.85:
                 dat_relative_activity=min(round(dat_relative_activity+0.0002,6),dat_relative_upper_cap)
@@ -908,7 +911,7 @@ while script_running==True:
                 print("Overall upregulation: "+str(round(-acuteTolerance,2))+"%")
 
             print("NMDA receptors active: "+str(round(nmda_active_total,2))+"%")
-        
+            print("DAT density (100% = neutral baseline): "+str(round(dat_relative_activity*100))+"%")
         if expectation<1:
             expectation=1
         
@@ -929,9 +932,9 @@ while script_running==True:
             print("Mood: "+str(round(mood*100,2))+"%")
             print("Risk of current psychotic episode: "+str(round(psychosisRisk,2))+"%")
             print("Dopamine firing rate: "+str(round(dopamine_relative_activity*100,2))+"%")
-        learning_rate=round(SN_DA*0.002*relativeDopaminePerception,2)
-        if learning_rate>0.8:
-            learning_rate=0.8
+        learning_rate=round(SN_DA*0.0001*relativeDopaminePerception,4)
+        if learning_rate>0.95:
+            learning_rate=0.95
         learned_change=learning_rate*rpe
         if learned_change>50:
             learned_change=50
