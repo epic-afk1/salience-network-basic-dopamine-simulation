@@ -648,7 +648,7 @@ while script_running==True:
                 activity = "idle"
                 reward = round(50*mood)
                 if inMind!="idle":
-                    reward = round(mood * reward * (reward/expectations[inMind]),2)
+                    reward = round(reward * (reward/expectations[inMind]),2)
                     abc=round(10-(expectations[inMind]/50))
                     if abc<1:
                         abc=1
@@ -816,11 +816,11 @@ while script_running==True:
             dat_relative_activity=max(round(dat_relative_activity-0.000042,6),dat_relative_lower_cap)
                 
         
-        if relative>1 and acuteTolerance<60 and (relative>1.1 or bipolar==False): # Receptor downregulation and upregulation are often delayed in individuals with Bipolar Disorder
-            acuteTolerance=round(acuteTolerance+0.01,2)
-        elif relative<1 and acuteTolerance>tolerance and (relative<0.9 or bipolar==False):
-            acuteTolerance=round(acuteTolerance-0.01,2)
-        elif relative<1 and acuteTolerance==tolerance and tolerance>-70 and random.randint(1,500)==1:
+        if relative>1 and acuteTolerance<60 and (relative>1.5 or bipolar==False): # Receptor downregulation and upregulation are often delayed in individuals with Bipolar Disorder
+            acuteTolerance=round(acuteTolerance+0.005*relative,2) # The relative multiplier gives chance for overcorrection
+        elif relative<1 and acuteTolerance>tolerance and (relative<0.85 or bipolar==False):
+            acuteTolerance=round(acuteTolerance-0.005/relative,2)
+        elif relative<1 and acuteTolerance==tolerance and tolerance>-70 and random.randint(1,1000)==1: 
             tolerance=round(tolerance-0.01,2)
             acuteTolerance=tolerance
 
@@ -829,7 +829,7 @@ while script_running==True:
         elif acuteTolerance<tolerance:
             acuteTolerance=tolerance
 
-        if acuteTolerance>tolerance and relative>1 and random.randint(1,500)==1:
+        if acuteTolerance>tolerance and relative>1 and random.randint(1,1000)==1: # A chance for chronic acute downregulation to lead to receptors be kept hidden
             tolerance=round(tolerance+0.01,2)
 
         if relative<0.0001:
