@@ -99,7 +99,7 @@ elif simulation.lower()=="adhd": # This profile simulates the High-DAT subgroup 
     
 elif simulation.lower()=="mania":
     bipolar=True
-    dopamine_relative_activity=4
+    dopamine_relative_activity=3
     dat_relative_activity=0.75
     
 elif simulation.lower()=="major depressive disorder":
@@ -111,7 +111,7 @@ elif simulation.lower()=="bipolar inter-episode":
 
 if bipolar==True: # In my simulation specifically, it is characterized by DAT malfunctioning, and uncontrolled increases in firing
     dopamine_relative_lower_cap=0.5
-    dopamine_relative_upper_cap=4
+    dopamine_relative_upper_cap=3
     dat_relative_lower_cap=min(0.75, dat_relative_lower_cap)
     dat_relative_upper_cap=max(1.25, dat_relative_upper_cap)
 
@@ -1025,17 +1025,17 @@ while script_running==True:
             if bipolar==False:
                 bipolar=True
                 dopamine_relative_lower_cap=0.5
-                dopamine_relative_upper_cap=4
+                dopamine_relative_upper_cap=3
                 dat_relative_lower_cap=min(0.75, dat_relative_lower_cap)
                 dat_relative_upper_cap=max(1.25, dat_relative_upper_cap)
-            dopamine_relative_activity=4
+            dopamine_relative_activity=3
             dat_relative_activity=0.75
             print("Forced a manic episode!")
         elif optionChosen==8:
             if bipolar==False:
                 bipolar=True
                 dopamine_relative_lower_cap=0.5
-                dopamine_relative_upper_cap=4
+                dopamine_relative_upper_cap=3
                 dat_relative_lower_cap=min(0.75, dat_relative_lower_cap)
                 dat_relative_upper_cap=max(1.25, dat_relative_upper_cap)
             dopamine_relative_activity=1
