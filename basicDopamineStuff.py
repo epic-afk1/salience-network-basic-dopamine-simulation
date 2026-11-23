@@ -817,10 +817,10 @@ while script_running==True:
                 
         
         if relative>1 and acuteTolerance<60 and (relative>1.1 or bipolar==False): # Receptor downregulation and upregulation are often delayed in individuals with Bipolar Disorder
-            acuteTolerance=round(acuteTolerance+0.02,2)
+            acuteTolerance=round(acuteTolerance+0.01,2)
         elif relative<1 and acuteTolerance>tolerance and (relative<0.9 or bipolar==False):
-            acuteTolerance=round(acuteTolerance-0.02,2)
-        elif relative<1 and acuteTolerance==tolerance and tolerance>-70 and random.randint(1,250)==1:
+            acuteTolerance=round(acuteTolerance-0.01,2)
+        elif relative<1 and acuteTolerance==tolerance and tolerance>-70 and random.randint(1,500)==1:
             tolerance=round(tolerance-0.01,2)
             acuteTolerance=tolerance
 
@@ -829,7 +829,7 @@ while script_running==True:
         elif acuteTolerance<tolerance:
             acuteTolerance=tolerance
 
-        if acuteTolerance>tolerance and relative>1 and random.randint(1,250)==1:
+        if acuteTolerance>tolerance and relative>1 and random.randint(1,500)==1:
             tolerance=round(tolerance+0.01,2)
 
         if relative<0.0001:
@@ -858,11 +858,11 @@ while script_running==True:
             dopamine_relative_activity=round(dopamine_relative_activity+0.01,2)
 
         if bipolar==True: # DAT density getting out of control if dopamine levels escalate (too much or too little) in an individual with Bipolar Disorder
-            if relative>1.5:
+            if relative>2:
                 dat_relative_activity=max(round(dat_relative_activity-0.0002,6),dat_relative_lower_cap)
                 if random.randint(1,50)==1: # Uncontrolled increases in firing in people with Bipolar Disorder if dopamine levels overwhelm the salience network
-                    dopamine_relative_activity=round(dopamine_relative_activity + relative*random.randint(1,5)/100,2)
-            elif relative<0.85:
+                    dopamine_relative_activity=round(dopamine_relative_activity + relative*random.randint(1,10)/100,2)
+            elif relative<0.8:
                 dat_relative_activity=min(round(dat_relative_activity+0.0002,6),dat_relative_upper_cap)
         
         if dopamine_relative_activity>dopamine_relative_upper_cap:
