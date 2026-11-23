@@ -14,7 +14,7 @@ inMind="idle"
 highest_valued_activity="idle"
 print("Which simulation would you like to choose?")
 # Options: "default", "random", "Schizophrenia", "Schizoaffective Disorder Bipolar Type", "Schizotypal Personality Disorder", "ADHD", "Mania", "Major Depressive Disorder", "Bipolar Depression"
-simulation_list=["default", "random", "Schizophrenia", "Schizoaffective Disorder Bipolar Type", "Schizotypal Personality Disorder", "ADHD", "Mania", "Major Depressive Disorder", "Bipolar Depression"]
+simulation_list=["default", "random", "Schizophrenia", "Schizoaffective Disorder Bipolar Type", "Schizotypal Personality Disorder", "ADHD", "Mania", "Major Depressive Disorder", "Bipolar Depression", "Bipolar inter-episode"]
 
 for i in simulation_list:
     print(str(simulation_list.index(i)+1)+": "+i)
@@ -62,20 +62,23 @@ startingSimulation = simulation
 
 
 if simulation.lower()=="schizoaffective disorder bipolar type":
-    simulation="schizophrenia"
     bipolar=True
+    psychosisRisk=75
+    nmda_active=75
+    nmda_cap=85
+    shiftToAuditoryVoices=95
     
 elif simulation.lower()=="bipolar depression":
     bipolar=True
     tolerance=60
     dat_relative_activity=1.25
 
-if simulation.lower()=="schizophrenia":
+elif simulation.lower()=="schizophrenia":
     tolerance=-50
     psychosisRisk=75
     nmda_active=70
     nmda_cap=80
-    shiftToAuditoryVoices=75
+    shiftToAuditoryVoices=95
     
 elif simulation.lower()=="schizotypal personality disorder":
     tolerance=-30
@@ -102,6 +105,9 @@ elif simulation.lower()=="mania":
 elif simulation.lower()=="major depressive disorder":
     tolerance=5
     mood=0.1
+
+elif simulation.lower()=="bipolar inter-episode":
+    bipolar=True
 
 if bipolar==True: # In my simulation specifically, it is characterized by DAT malfunctioning, and uncontrolled increases in firing
     dopamine_relative_lower_cap=0.5
