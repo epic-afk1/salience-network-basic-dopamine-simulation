@@ -901,7 +901,7 @@ while script_running==True:
                 else:
                     delusion=random.choice(idle_delusional_beliefs)
                     x=1
-            elif random.randint(1,2)==1:
+            elif random.randint(1,10)==1:
                 shiftToAuditoryVoices=max(0, round(shiftToAuditoryVoices-1))
         print("Engagement: "+engagement_level)
 
@@ -1038,6 +1038,7 @@ while script_running==True:
                 dopamine_relative_upper_cap=4
                 dat_relative_lower_cap=min(0.75, dat_relative_lower_cap)
                 dat_relative_upper_cap=max(1.25, dat_relative_upper_cap)
+            dopamine_relative_activity=1
             dat_relative_activity=1.25
             tolerance=60
             acuteTolerance=60
