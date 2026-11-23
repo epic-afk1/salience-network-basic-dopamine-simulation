@@ -9,6 +9,7 @@ remainedAfterSecond=0.03125  #default: 0.03125
 expectations={}
 activity_history=[]
 psychosisRisk=0 # In percent, from 0 to 95, default: 0
+shiftToAuditoryVoices=0 # Psychotic symptoms rarely start off with chronic, clear voices as hallucinations in one individual. Those are usually the result of the brain rewiring itself to seek structure in aberrant salience
 inMind="idle"
 highest_valued_activity="idle"
 print("Which simulation would you like to choose?")
@@ -27,8 +28,10 @@ while errorResolved==False:
         print("Not a valid input! Try again")
 
 tolerance=0 # In percent, from -70 to 60, default = 0
-bipolar="none" # Options: "none", "idle", "mania" (note: "idle" includes both inter-episodes and depressive episodes, as this script only covers the dopamine aspects of the condition)"
-cyclingCounter=random.randint(604800,15120000)
+bipolar=False
+dat_relative_activity=1 # Typically from 0.85 to 1.15
+dat_relative_lower_cap=0.85
+dat_relative_upper_cap=1.15
 mood=1 # From 0.1 to 1.5, default: 1
 typical_antipsychotics=0 # unit: mg, default: 0, roughly based on haloperidol, equation for later to determine what amount of dopamine receptors are active after dosing in percent: 100 * (0.47 ** typical_antipsychotics)
 stimulants=0 # unit: mg, default: 0, roughly based on d-amphetamine, equation for later to determine what amount of transporters work in reverse after dosing in percent: (100 * stimulants) / (15 + stimulants)
@@ -60,42 +63,48 @@ startingSimulation = simulation
 
 if simulation.lower()=="schizoaffective disorder bipolar type":
     simulation="schizophrenia"
-    bipolar="idle"
+    bipolar=True
     
 elif simulation.lower()=="bipolar depression":
+    bipolar=True
     tolerance=60
-    simulation="mania"
-    cyclingCounter=0
+    dat_relative_activity=1.25
 
 if simulation.lower()=="schizophrenia":
     tolerance=-50
     psychosisRisk=75
     nmda_active=70
     nmda_cap=80
+    shiftToAuditoryVoices=75
     
 elif simulation.lower()=="schizotypal personality disorder":
     tolerance=-30
     psychosisRisk=25
     nmda_active=80
     nmda_cap=90
+    shiftToAuditoryVoices=5
     
-elif simulation.lower()=="adhd":
+elif simulation.lower()=="adhd": # This profile simulates the High-DAT subgroup of ADHD
     dopamine_relative_upper_cap=0.8
     tolerance=-30
-    remainedAfterSecond=0.01838
+    dat_relative_lower_cap=1.1
+    dat_relative_upper_cap=1.5
+    dat_relative_activity=1.3
     
 elif simulation.lower()=="mania":
-    dopamine_relative_lower_cap=2
-    dopamine_relative_upper_cap=4
-    bipolar="mania"
-    dopamine_relative_activity=2
-    remainedAfterSecond=0.0625
-    psychosisRisk=50
+    bipolar=True
+    dopamine_relative_activity=4
+    dat_relative_activity=0.75
     
 elif simulation.lower()=="major depressive disorder":
     tolerance=5
     mood=0.1
 
+if bipolar==True: # In my simulation specifically, it is characterized by DAT malfunctioning, and uncontrolled increases in firing
+    dopamine_relative_lower_cap=0.5
+    dopamine_relative_upper_cap=4
+    dat_relative_lower_cap=min(0.75, dat_relative_lower_cap)
+    dat_relative_upper_cap=max(1.25, dat_relative_upper_cap)
 
 tonic_frequency=round(3 * dopamine_relative_activity) #unit: Hz, default: round(3 * dopamine_relative_activity)
 SN_DA=increase*tonic_frequency #unit: nanomolar, default: increase*tonic_frequency, also SN stands for salience network here, not substantia nigra
@@ -104,8 +113,6 @@ dopaminePerceptionLimit=1000 * relativeDopaminePerception # unit: nanomolar, def
 
 relative=SN_DA*relativeDopaminePerception/usual_baseline
 acuteTolerance=tolerance # In percent, from -70 to 60, default = tolerance
-if bipolar=="mania":
-    acuteTolerance=60
 
 # Following four dictionaries and two lists are AI-generated, intended to change later
 
@@ -554,23 +561,6 @@ engagement_level="neutral"
 
 while script_running==True:
     if choosingOption == False:
-        if bipolar!="none":
-            if cyclingCounter>0:
-                cyclingCounter-=1
-            else:
-                cyclingCounter=random.randint(604800,15120000)
-                if bipolar.lower()=="idle":
-                    bipolar="mania"
-                    dopamine_relative_lower_cap=dopamine_relative_lower_cap*4
-                    dopamine_relative_upper_cap=dopamine_relative_upper_cap*4
-                    remainedAfterSecond=remainedAfterSecond*2
-                elif bipolar.lower()=="mania":
-                    bipolar="idle"
-                    dopamine_relative_lower_cap=dopamine_relative_lower_cap/4
-                    dopamine_relative_upper_cap=dopamine_relative_upper_cap/4
-                    remainedAfterSecond=remainedAfterSecond/2
-
-
         days=int(timePassed/(24*60*60))
         hours=int(timePassed/(60*60) - days*24)
         minutes=int(timePassed/60 - hours*60 - days*60*24)
@@ -591,14 +581,12 @@ while script_running==True:
         if speed_up==False:
             time.sleep(1)
         timePassed = round(timePassed + 1)
-        if show_details==True and bipolar!="none":
-            print("Currently manic: "+str(bipolar=="mania").lower())
-            print("Bipolar cycling happens in "+str(cyclingCounter)+"s")
+        
         if x > 0:
             x -= 1
         tonic_frequency=round(3 * dopamine_relative_activity)
-        clearanceRate=1-remainedAfterSecond
-        SN_DA-= SN_DA * clearanceRate * ((1 - (stimulants / (10 + stimulants))))
+        clearanceRate=min(0.99,(1-remainedAfterSecond)*dat_relative_activity)
+        SN_DA-= SN_DA * clearanceRate * ((1 - (stimulants / (10 + stimulants)))) # Technically amphetamine blocks reuptake AND causes a release, I tried to shorten the math to have it achieve similar values while only blocking reuptake
         inMind="idle"
         if len(expectations)>0:
             highest_valued_activity=max(expectations,key=expectations.get)
@@ -741,7 +729,7 @@ while script_running==True:
             elif nmda_active<nmda_cap:
                 nmda_active=round(nmda_active+0.1,2)
         elif nmda_active_total>100:
-                nmda_active=round(nmda_active-0.1,2)
+            nmda_active=round(nmda_active-0.1,2)
 
         relative_recovery = min(4,round(1 + max(0,nmda_active_total-previous_nmda_active_total) * max(0,100-nmda_active_total),2))
 
@@ -804,6 +792,7 @@ while script_running==True:
             SN_DA=1000
 
         if show_details==True:
+            print("Has Bipolar Disorder: "+str(bipolar))
             print("Death chance: "+str(round(deathChance,2))+"%")
             print("DA levels in the SN: " +str(SN_DA))
             print("Stimulant amount: "+str(round(stimulants,2))+"mg")
@@ -811,6 +800,13 @@ while script_running==True:
             print("Dissociative amount: "+str(round(dissociatives,2))+"mg")
         
         relative=round(SN_DA*relativeDopaminePerception/usual_baseline,4)
+
+        if relative>1:
+            dat_relative_activity=min(round(dat_relative_activity+0.000042,6),dat_relative_upper_cap)
+        elif relative<1:
+            dat_relative_activity=max(round(dat_relative_activity-0.000042,6),dat_relative_lower_cap)
+                
+        
         if relative>1 and acuteTolerance<60:
             acuteTolerance=round(acuteTolerance+0.02,2)
         elif relative<1 and acuteTolerance>tolerance:
@@ -851,6 +847,14 @@ while script_running==True:
             dopamine_relative_activity=round(dopamine_relative_activity-0.01,2)
         elif relative<1:
             dopamine_relative_activity=round(dopamine_relative_activity+0.01,2)
+
+        if bipolar==True: # DAT density getting out of control if dopamine levels escalate (too much or too little) in an individual with Bipolar Disorder
+            if relative>1.5:
+                dat_relative_activity=max(round(dat_relative_activity-0.0002,6),dat_relative_lower_cap)
+                if random.randint(1,25)==1: # Uncontrolled increases in firing in people with Bipolar Disorder if dopamine levels overwhelm the salience network
+                    dopamine_relative_activity=round(dopamine_relative_activity + relative*random.randint(1,10)/100,2)
+            elif relative<0.85:
+                dat_relative_activity=min(round(dat_relative_activity+0.0002,6),dat_relative_upper_cap)
         
         if dopamine_relative_activity>dopamine_relative_upper_cap:
             dopamine_relative_activity=dopamine_relative_upper_cap
@@ -868,16 +872,7 @@ while script_running==True:
         delusion="idle"
         hallucination="idle"
         if inMind=="idle":
-            if relative>8 and relative <= 9:
-                mood=round(mood - (relative-1)*relative_recovery*0.0005, 4) # Despite the engagement lifting up the mood, an experience this distressing can quickly turn things around
-                if activity != "idle" and activity in delusional_beliefs:
-                    delusion=delusional_beliefs[activity]
-                    x=1
-                    rpe = rpe-10 # Having the AI be less likely to repeat an activity due to the delusion, just to make it seem dramatic and more immersive
-                else:
-                    delusion=random.choice(idle_delusional_beliefs)
-                    x=1
-            elif relative>9:
+            if relative>9 and random.randint(1, 100-shiftToAuditoryVoices)==1:
                 mood=round(mood - 2 * (relative-1)*relative_recovery*0.0005, 4)
                 if nmda_cap>70 and random.randint(1,50)==1:
                     nmda_cap=round(nmda_cap-0.01,2)
@@ -887,6 +882,18 @@ while script_running==True:
                 else:
                     hallucination=random.choice(idle_auditory_hallucinations)
                     x=1
+            elif relative>8:
+                shiftToAuditoryVoices=min(99, round(shiftToAuditoryVoices+1))
+                mood=round(mood - (relative-1)*relative_recovery*0.0005, 4) # Despite the engagement lifting up the mood, an experience this distressing can quickly turn things around
+                if activity != "idle" and activity in delusional_beliefs:
+                    delusion=delusional_beliefs[activity]
+                    x=1
+                    rpe = min(0, rpe - 10) # Having the AI be less likely to repeat an activity due to the delusion, just to make it seem dramatic and more immersive
+                else:
+                    delusion=random.choice(idle_delusional_beliefs)
+                    x=1
+            elif random.randint(1,2)==1:
+                shiftToAuditoryVoices=max(0, round(shiftToAuditoryVoices-1))
         print("Engagement: "+engagement_level)
 
         if show_details==True:
@@ -974,8 +981,8 @@ while script_running==True:
         print("Option 4: Toggle maximum speed (manual input will be disabled!)")
         print("Option 5: Show medication-related possible activities")
         print("Option 6: Force a psychotic episode")
-        print("Option 7: Force a manic episode")
-        print("Option 8: Force a crash from a manic episode")
+        print("Option 7: Force a manic episode (currently being remade)")
+        print("Option 8: Force a crash from a manic episode (currently being remade)")
         print("Option 9: Medication reset")
         print("Option 10: End the script")
         print("Any other number: Do nothing")
@@ -1006,22 +1013,26 @@ while script_running==True:
             psychosisRisk=95
             print("Psychosis risk set to 95%!")
         elif optionChosen==7:
-            if bipolar!="mania":
-                bipolar="idle"
-                cyclingCounter=0
-            print("Shifting to mania!")
+            if bipolar==False:
+                bipolar=True
+                dopamine_relative_lower_cap=0.5
+                dopamine_relative_upper_cap=4
+                dat_relative_lower_cap=min(0.75, dat_relative_lower_cap)
+                dat_relative_upper_cap=max(1.25, dat_relative_upper_cap)
+            dopamine_relative_activity=4
+            dat_relative_activity=0.75
+            print("Forced a manic episode!")
         elif optionChosen==8:
-            if bipolar!="mania":
-                bipolar="mania"
-                dopamine_relative_lower_cap=dopamine_relative_lower_cap*4
-                dopamine_relative_upper_cap=dopamine_relative_upper_cap*4
-                remainedAfterSecond=remainedAfterSecond*2
-                dopamine_relative_activity=max(dopamine_relative_activity,dopamine_relative_lower_cap)
-                psychosisRisk=max(psychosisRisk, 50)
-                tolerance=60
-                acuteTolerance=60
-            cyclingCounter=0
-            print("Shifting to a crash from a manic episode!")
+            if bipolar==False:
+                bipolar=True
+                dopamine_relative_lower_cap=0.5
+                dopamine_relative_upper_cap=4
+                dat_relative_lower_cap=min(0.75, dat_relative_lower_cap)
+                dat_relative_upper_cap=max(1.25, dat_relative_upper_cap)
+            dat_relative_activity=1.25
+            tolerance=60
+            acuteTolerance=60
+            print("Forced a depressive crash from a manic episode!")
         elif optionChosen==9:
             stimulants=0
             typical_antipsychotics=0
