@@ -9,7 +9,7 @@ remainedAfterSecond=0.03125  #default: 0.03125
 expectations={}
 activity_history=[]
 psychosisRisk=0 # In percent, from 0 to 95, default: 0
-shiftToAuditoryVoices=0 # Psychotic symptoms rarely start off with chronic, clear voices as hallucinations in one individual. Those are usually the result of the brain rewiring itself to seek structure in aberrant salience
+shiftToAuditoryVoices=0 # From 0 to 98: Psychotic symptoms rarely start off with chronic, clear voices as hallucinations in one individual. Those are usually the result of the brain rewiring itself to seek structure in aberrant salience
 inMind="idle"
 highest_valued_activity="idle"
 print("Which simulation would you like to choose?")
@@ -844,17 +844,17 @@ while script_running==True:
         
         relative=round(SN_DA*relativeDopaminePerception/usual_baseline,4)
 
-        if relative>1:
+        if relative>1.1:
             dat_relative_activity=min(round(dat_relative_activity+0.000042,6),dat_relative_upper_cap)
-        elif relative<1:
+        elif relative<=0.9:
             dat_relative_activity=max(round(dat_relative_activity-0.000042,6),dat_relative_lower_cap)
                 
         
-        if relative>1 and acuteTolerance<60 and (relative>1.5 or bipolar==False): # Receptor downregulation and upregulation are often delayed in individuals with Bipolar Disorder
+        if relative>1.1 and acuteTolerance<60 and (relative>1.5 or bipolar==False): # Receptor downregulation and upregulation are often delayed in individuals with Bipolar Disorder
             acuteTolerance=round(acuteTolerance+0.005*relative,2) # The relative multiplier gives chance for overcorrection
-        elif relative<1 and acuteTolerance>tolerance and (relative<0.85 or bipolar==False):
+        elif relative<=0.9 and acuteTolerance>tolerance and (relative<=0.8 or bipolar==False):
             acuteTolerance=round(acuteTolerance-0.005/relative,2)
-        elif relative<1 and acuteTolerance==tolerance and tolerance>-70 and random.randint(1,1000)==1: 
+        elif relative<=0.9 and acuteTolerance==tolerance and tolerance>-70 and random.randint(1,1000)==1: 
             tolerance=round(tolerance-0.01,2)
             acuteTolerance=tolerance
 
@@ -863,7 +863,7 @@ while script_running==True:
         elif acuteTolerance<tolerance:
             acuteTolerance=tolerance
 
-        if acuteTolerance>tolerance and relative>1 and random.randint(1,1000)==1: # A chance for chronic acute downregulation to lead to receptors be kept hidden
+        if acuteTolerance>tolerance and relative>1.1 and random.randint(1,1000)==1: # A chance for chronic acute downregulation to lead to receptors be kept hidden
             tolerance=round(tolerance+0.01,2)
 
         if relative<0.0001:
@@ -888,9 +888,9 @@ while script_running==True:
             engagement_level="frozen"
             x=0
 
-        if relative>1:
+        if relative>1.1:
             dopamine_relative_activity=round(dopamine_relative_activity-0.01,2)
-        elif relative<1:
+        elif relative<0.9:
             dopamine_relative_activity=round(dopamine_relative_activity+0.01,2)
 
         if bipolar==True:  # DAT density getting out of control if dopamine levels escalate (too much or too little) in an individual with Bipolar Disorder
@@ -908,7 +908,7 @@ while script_running==True:
             dopamine_relative_activity=dopamine_relative_lower_cap
         
 
-        mood=round(mood + (relative**2 - 1)*relative_recovery*0.0005, 4) # Something being engaging on its own might slightly lift up someone's mood
+        mood=round(mood + (relative**2 - 1)*relative_recovery*0.0005, 6) # Something being engaging on its own might slightly lift up someone's mood
 
         psychosisRisk+=random.randint(round(relative-20), round(relative*abs(100-nmda_active_total))) # Stressors and currently existing aberrant salience episodes can make future aberrant salience more likely, from my point of knowledge
         if psychosisRisk<0:
@@ -919,7 +919,7 @@ while script_running==True:
         hallucination="idle"
         if inMind=="idle":
             if relative>9 and random.randint(1, 100-shiftToAuditoryVoices)==1:
-                mood=round(mood - 2 * (relative-1)*relative_recovery*0.0005, 4)
+                mood=round(mood - 2 * (relative**2 - 1)*relative_recovery*0.0005, 6)
                 if nmda_cap>70 and random.randint(1,50)==1:
                     nmda_cap=round(nmda_cap-0.01,2)
                 if activity != "idle" and activity in auditory_hallucinations:
@@ -929,8 +929,9 @@ while script_running==True:
                     hallucination=random.choice(idle_auditory_hallucinations)
                     x=1
             elif relative>8:
-                shiftToAuditoryVoices=min(99, round(shiftToAuditoryVoices+1))
-                mood=round(mood - (relative-1)*relative_recovery*0.0005, 4) # Despite the engagement lifting up the mood, an experience this distressing can quickly turn things around
+                if random.randint(1,5)==1:
+                    shiftToAuditoryVoices=min(98, round(shiftToAuditoryVoices+1))
+                mood=round(mood - (relative**2 - 1)*relative_recovery*0.0005, 6) # Despite the engagement lifting up the mood, an experience this distressing can quickly turn things around
                 if activity != "idle" and activity in delusional_beliefs:
                     delusion=delusional_beliefs[activity]
                     x=1
@@ -938,7 +939,7 @@ while script_running==True:
                 else:
                     delusion=random.choice(idle_delusional_beliefs)
                     x=1
-            elif random.randint(1,10)==1:
+            elif random.randint(1,25)==1:
                 shiftToAuditoryVoices=max(0, round(shiftToAuditoryVoices-1))
 
         if (seconds==0 or speed_up==False):
@@ -967,7 +968,7 @@ while script_running==True:
         elif reward/expectation>1.5 and (seconds==0 or speed_up==False):
             print("Positively surprised!")
 
-        mood = round(mood + (reward/expectation - 1)*relative_recovery*0.001,4) # Good and bad surprises affecting the mood
+        mood = round(mood + ((reward/expectation)**2 - 1)*relative_recovery*0.001,6) # Good and bad surprises affecting the mood
         
         if mood>1.5:
             mood=1.5
@@ -1026,7 +1027,7 @@ while script_running==True:
                 print(timeString)
             sys.stderr.write(hallucination+"\n")
             
-        if (seconds==0 or speed_up==False):
+        if seconds==0 or speed_up==False or delusion!="idle" or hallucination!="idle":
             print("")
     else:
         print("What do you want to do?")
