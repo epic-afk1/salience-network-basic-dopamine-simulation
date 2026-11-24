@@ -894,13 +894,13 @@ while script_running==True:
             dopamine_relative_activity=round(dopamine_relative_activity+0.01,2)
 
         if bipolar==True:  # DAT density getting out of control if dopamine levels escalate (too much or too little) in an individual with Bipolar Disorder
-            if relative>1.5:
+            if relative>1.4:
                 if random.randint(1,2)==1: # Uncontrolled increases in firing in people with Bipolar Disorder if dopamine levels overwhelm the salience network
                     dopamine_relative_activity=round(dopamine_relative_activity + relative*0.01,2)
-                if relative>1.75:
-                    dat_relative_activity=max(round(dat_relative_activity-0.0002,6),dat_relative_lower_cap)
+                if relative>1.6:
+                    dat_relative_activity=max(round(dat_relative_activity - 0.0002*relative,6),dat_relative_lower_cap)
             elif relative<=0.8:
-                dat_relative_activity=min(round(dat_relative_activity+0.0002,6),dat_relative_upper_cap) 
+                dat_relative_activity=min(round(dat_relative_activity + 0.0002/relative,6),dat_relative_upper_cap) 
                 
         if dopamine_relative_activity>dopamine_relative_upper_cap:
             dopamine_relative_activity=dopamine_relative_upper_cap
@@ -908,7 +908,7 @@ while script_running==True:
             dopamine_relative_activity=dopamine_relative_lower_cap
         
 
-        mood=round(mood + (relative-1)*relative_recovery*0.0005, 4) # Something being engaging on its own might slightly lift up someone's mood
+        mood=round(mood + (relative**2 - 1)*relative_recovery*0.0005, 4) # Something being engaging on its own might slightly lift up someone's mood
 
         psychosisRisk+=random.randint(round(relative-20), round(relative*abs(100-nmda_active_total))) # Stressors and currently existing aberrant salience episodes can make future aberrant salience more likely, from my point of knowledge
         if psychosisRisk<0:
