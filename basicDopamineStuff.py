@@ -610,7 +610,10 @@ while script_running==True:
         timeString=timeString + str(seconds) + " seconds"
 
         if (seconds==0 or speed_up==False):
-            print(timeString)
+            if speed_up==False:
+                print(timeString)
+            else:
+                print(timeString.split(" and",1)[0])
         
         if speed_up==False:
             time.sleep(1)
@@ -783,7 +786,7 @@ while script_running==True:
         elif deathChance<0:
             deathChance=0
         
-        if random.randint(round(deathChance/10), 100) == random.randint(round(deathChance/10), 100) and deathChance>random.randint(5,95):
+        if random.randint(round(deathChance/10), 1000) == random.randint(round(deathChance/10), 1000) and deathChance>random.randint(5,95):
             script_running=False
             sys.stderr.write("THE AGENT DIED. SCRIPT ENDING.\n")
             break
@@ -894,7 +897,7 @@ while script_running==True:
             if relative>1.5:
                 if random.randint(1,2)==1: # Uncontrolled increases in firing in people with Bipolar Disorder if dopamine levels overwhelm the salience network
                     dopamine_relative_activity=round(dopamine_relative_activity + relative*0.01,2)
-                if relative>2:
+                if relative>1.75:
                     dat_relative_activity=max(round(dat_relative_activity-0.0002,6),dat_relative_lower_cap)
             elif relative<=0.8:
                 dat_relative_activity=min(round(dat_relative_activity+0.0002,6),dat_relative_upper_cap) 
