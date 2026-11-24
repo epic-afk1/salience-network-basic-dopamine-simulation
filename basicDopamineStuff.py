@@ -609,7 +609,8 @@ while script_running==True:
             timeString=timeString + str(minutes) + "  minutes and "
         timeString=timeString + str(seconds) + " seconds"
 
-        print(timeString)
+        if (seconds==0 or speed_up==False):
+            print(timeString)
         
         if speed_up==False:
             time.sleep(1)
@@ -625,7 +626,8 @@ while script_running==True:
             highest_valued_activity=max(expectations,key=expectations.get)
             if expectations[highest_valued_activity]>50 and x==0 and randomrandint!=1 and highest_valued_activity!="idle":
                 inMind=highest_valued_activity
-                print("Currently thinking about: "+highest_valued_activity)
+                if (seconds==0 or speed_up==False):
+                    print("Currently thinking about: "+highest_valued_activity)
                 SN_DA+=0.1*expectations[highest_valued_activity]*dopamine_relative_activity
         
         if x == 0:
@@ -768,13 +770,13 @@ while script_running==True:
 
         bmi = body_weight / (height/100)**2
 
-        bmi_strain = (abs(bmi - 26)/100) ** 4
+        bmi_strain = (abs(bmi - 26)/25) ** 4
         stim_strain = stimulants**3 / 10000000
         antipsychotic_strain = typical_antipsychotics**3 / 5000000
         nmda_deviation = abs(1 - (nmda_active_total / 100))**4
         nmda_excitotoxicity = max(0, (nmda_active_total / 100)**2 - 1)
 
-        deathChance = round(deathChance + (stim_strain + antipsychotic_strain + nmda_deviation + nmda_excitotoxicity - 0.1)/20, 3)
+        deathChance = round(deathChance + (bmi_strain + stim_strain + antipsychotic_strain + nmda_deviation + nmda_excitotoxicity - 0.1)/20, 3)
         
         if deathChance>99:
             deathChance=99
@@ -789,7 +791,9 @@ while script_running==True:
         
         if activity=="idle" and inMind=="idle":
             reward = round(50*mood)
-        print("Activity: "+activity)
+        if (seconds==0 or speed_up==False):   
+            print("Activity: "+activity)
+            
         if activity not in activity_history:
             if activity not in expectations:
                 expectations[activity]=round(50*mood)
@@ -801,7 +805,7 @@ while script_running==True:
             old=activity_history.pop(0)
             del expectations[old]
         expectation=expectations[activity]
-        if show_details==True:
+        if show_details==True and (seconds==0 or speed_up==False):
             print("Expected reward: "+str(expectation))
             print("Actual reward: "+str(reward))
         rpe=reward-expectation
@@ -827,7 +831,7 @@ while script_running==True:
         elif SN_DA>1000:
             SN_DA=1000
 
-        if show_details==True:
+        if show_details==True and (seconds==0 or speed_up==False):
             print("Has Bipolar Disorder: "+str(bipolar))
             print("Death chance: "+str(round(deathChance,2))+"%")
             print("DA levels in the SN: " +str(SN_DA))
@@ -933,9 +937,11 @@ while script_running==True:
                     x=1
             elif random.randint(1,10)==1:
                 shiftToAuditoryVoices=max(0, round(shiftToAuditoryVoices-1))
-        print("Engagement: "+engagement_level)
 
-        if show_details==True:
+        if (seconds==0 or speed_up==False):
+            print("Engagement: "+engagement_level)
+
+        if show_details==True and (seconds==0 or speed_up==False):
             if tolerance>=0:
                 print("Long-term downregulation: "+str(round(tolerance,2))+"%")
             else:
@@ -953,9 +959,9 @@ while script_running==True:
         if expectation<1:
             expectation=1
         
-        if reward/expectation<0.75:
+        if reward/expectation<0.75 and (seconds==0 or speed_up==False):
             print("Disappointed!")
-        elif reward/expectation>1.5:
+        elif reward/expectation>1.5 and (seconds==0 or speed_up==False):
             print("Positively surprised!")
 
         mood = round(mood + (reward/expectation - 1)*relative_recovery*0.001,4) # Good and bad surprises affecting the mood
@@ -965,7 +971,7 @@ while script_running==True:
         elif mood<0.1:
             mood=0.1
         
-        if show_details==True:
+        if show_details==True and (seconds==0 or speed_up==False):
             print("Engagement percentage: "+str(round(relative*100,2))+"%")
             print("Mood: "+str(round(mood*100,2))+"%")
             print("Risk of current psychotic episode: "+str(round(psychosisRisk,2))+"%")
@@ -1008,18 +1014,23 @@ while script_running==True:
                 expectations["dissociative oral use"]=1
             
            
-        if delusion!="idle":
+        if delusion!="idle": # Those I actually want to show without (seconds==0 or speed_up==False) so one can count delusions/hallucinations even if speed_up==True
+            if not (seconds==0 or speed_up==False):
+                print(timeString)
             print(delusion)
         elif hallucination!="idle":
+            if not (seconds==0 or speed_up==False):
+                print(timeString)
             sys.stderr.write(hallucination+"\n")
-
-        print("")
+            
+        if (seconds==0 or speed_up==False):
+            print("")
     else:
         print("What do you want to do?")
         print("Option 1: Toggle manual input")
         print("Option 2: Toggle details")
         print("Option 3: Show the on-going simulation")
-        print("Option 4: Toggle maximum speed (manual input will be disabled!)")
+        print("Option 4: Toggle maximum speed (manual input will be disabled and entries will only show once per minute)")
         print("Option 5: Show medication-related possible activities")
         print("Option 6: Force a psychotic episode")
         print("Option 7: Force a manic episode")
