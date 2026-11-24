@@ -14,7 +14,7 @@ inMind="idle"
 highest_valued_activity="idle"
 print("Which simulation would you like to choose?")
 # Options: "default", "random", "Schizophrenia", "Schizoaffective Disorder Bipolar Type", "Schizotypal Personality Disorder", "ADHD", "Mania", "Major Depressive Disorder", "Bipolar Depression"
-simulation_list=["default", "random", "Schizophrenia", "Schizoaffective Disorder Bipolar Type", "Schizotypal Personality Disorder", "ADHD", "Mania", "Major Depressive Disorder", "Bipolar Depression", "Bipolar inter-episode"]
+simulation_list=["default", "random", "Schizophrenia", "Schizoaffective Disorder Bipolar Type", "Schizotypal Personality Disorder", "ADHD", "Mania", "Major Depressive Disorder", "Bipolar Depression", "Bipolar inter-episode", "Bipolar with ADHD", "Schizoaffective Disorder Bipolar Type with ADHD"]
 
 for i in simulation_list:
     print(str(simulation_list.index(i)+1)+": "+i)
@@ -37,6 +37,8 @@ typical_antipsychotics=0 # unit: mg, default: 0, roughly based on haloperidol, e
 stimulants=0 # unit: mg, default: 0, roughly based on d-amphetamine, equation for later to determine what amount of transporters work in reverse after dosing in percent: (100 * stimulants) / (15 + stimulants)
 dissociatives=0 # unit: mg, default: 0, roughly based on ketamine
 body_weight=70 # In kg, default = 70
+height=170 # In cm, default = 170
+bmi = body_weight / (height/100)**2 # Default: body_weight / (height/100)**2
 nmda_active=100 # In percent, from 0 to 200, default = 100
 nmda_cap=100 # In percent, from 70 (for conditions like Schizophrenia to make NMDA hypofunction biologically forced) to 100, default = 100
 nmda_active_total=nmda_active
@@ -51,6 +53,11 @@ medications_absorption_value={"stimulant_oral":0.000694,"antipsychotic_oral":0.0
 print("Active simulation: "+simulation.upper())
 print("")
 
+substancesInvolved=False
+substanceInput=input("Should the agent be able to discover certain substances by itself? (Y/N) ").lower().strip()
+if substanceInput=="y" or substanceInput=="yes":
+    substancesInvolved=True
+
 simulation=simulation.lower().strip()
 
 if simulation=="random":
@@ -60,6 +67,9 @@ if simulation=="random":
 
 startingSimulation = simulation
 
+if simulation.lower()=="bipolar with adhd":
+    simulation="adhd"
+    bipolar=True
 
 if simulation.lower()=="schizoaffective disorder bipolar type":
     bipolar=True
@@ -67,6 +77,16 @@ if simulation.lower()=="schizoaffective disorder bipolar type":
     nmda_active=75
     nmda_cap=85
     shiftToAuditoryVoices=95
+
+elif simulation.lower()=="schizoaffective disorder bipolar type with adhd":
+    bipolar=True
+    psychosisRisk=75
+    nmda_active=75
+    nmda_cap=85
+    shiftToAuditoryVoices=95
+    dat_relative_upper_cap=1.5
+    dat_relative_activity=1.3
+    tolerance=-15
     
 elif simulation.lower()=="bipolar depression":
     bipolar=True
@@ -145,7 +165,7 @@ activity_pool = {
     "daydreaming about vacation": 59, "doodling on a notebook": 42, "checking the weather forecast": 44,
     "folding warm laundry": 46, "polishing a pair of shoes": 41, "watching the rain fall": 53,
     "drinking a warm cup of tea": 68, "re-reading an old message": 57, "singing in the shower": 63,
-    "brushing your teeth": 45, "applying nice smelling lotion": 51, "looking at old photographs": 67, "stimulant injection":50, "dissociative nasal use":50,
+    "brushing your teeth": 45, "applying nice smelling lotion": 51, "looking at old photographs": 67, 
     # Some medications are excluded to avoid the agent self-medicating non-recreational substances
     
     # 🟠 Monotonous / Low-Reward Chores (20-39)
@@ -547,6 +567,10 @@ idle_auditory_hallucinations = [
     "Run while you still can."
 ]
 
+if substancesInvolved==True:
+    activity_pool["stimulant injection"]=50
+    activity_pool["dissociative nasal use"]=50
+
 x = 0
 
 if psychosisRisk<0:
@@ -742,6 +766,9 @@ while script_running==True:
 
         relative_recovery = min(4,round(1 + max(0,nmda_active_total-previous_nmda_active_total) * max(0,100-nmda_active_total),2))
 
+        bmi = body_weight / (height/100)**2
+
+        bmi_strain = (abs(bmi - 26)/100) ** 4
         stim_strain = stimulants**3 / 10000000
         antipsychotic_strain = typical_antipsychotics**3 / 5000000
         nmda_deviation = abs(1 - (nmda_active_total / 100))**4
@@ -840,6 +867,7 @@ while script_running==True:
         
         if relative>2:
             engagement_level="hyperfocused"
+            body_weight = max(0, round(body_weight - 0.000001, 6)) # Not necessarily a per-second calculation in the real world but I want chronic severe dopamine surplus to lead to weight loss over time
         elif relative > 1.1 and relative <= 2:
             engagement_level="engaged"
         elif relative > 0.9 and relative <= 1.1:
@@ -848,6 +876,7 @@ while script_running==True:
             engagement_level="unengaged"
         elif relative > 0.05:
             engagement_level="dull"
+            body_weight = max(0, round(body_weight + 0.000001, 6)) # Apparently, a severe dopamine deficit can lead to an increase of appetite, and I want antipsychotics to not be "side-effect free" in this simulation
         else:
             engagement_level="frozen"
             x=0
@@ -857,13 +886,14 @@ while script_running==True:
         elif relative<1:
             dopamine_relative_activity=round(dopamine_relative_activity+0.01,2)
 
-        if bipolar==True: # DAT density getting out of control if dopamine levels escalate (too much or too little) in an individual with Bipolar Disorder
+        if bipolar==True:  # DAT density getting out of control if dopamine levels escalate (too much or too little) in an individual with Bipolar Disorder
             if relative>1.5:
-                dat_relative_activity=max(round(dat_relative_activity-0.0002,6),dat_relative_lower_cap)
                 if random.randint(1,2)==1: # Uncontrolled increases in firing in people with Bipolar Disorder if dopamine levels overwhelm the salience network
                     dopamine_relative_activity=round(dopamine_relative_activity + relative*0.01,2)
-            elif relative<0.85:
-                dat_relative_activity=min(round(dat_relative_activity+0.0002,6),dat_relative_upper_cap)
+                if relative>2:
+                    dat_relative_activity=max(round(dat_relative_activity-0.0002,6),dat_relative_lower_cap)
+            elif relative<=0.8:
+                dat_relative_activity=min(round(dat_relative_activity+0.0002,6),dat_relative_upper_cap) 
                 
         if dopamine_relative_activity>dopamine_relative_upper_cap:
             dopamine_relative_activity=dopamine_relative_upper_cap
@@ -918,6 +948,8 @@ while script_running==True:
 
             print("NMDA receptors active: "+str(round(nmda_active_total,2))+"%")
             print("DAT density (100% = neutral baseline): "+str(round(dat_relative_activity*100))+"%")
+            print("Body weight: "+str(round(body_weight))+"kg") # Unprecise values because linear per-second changes in body weight are unrealistic, so changes of this value should only be noticeable in the long-term.
+            #Also body_weight directly affects dissociative effects and mortality rates so it might be an important value to display
         if expectation<1:
             expectation=1
         
@@ -990,8 +1022,8 @@ while script_running==True:
         print("Option 4: Toggle maximum speed (manual input will be disabled!)")
         print("Option 5: Show medication-related possible activities")
         print("Option 6: Force a psychotic episode")
-        print("Option 7: Force a manic episode (currently being remade)")
-        print("Option 8: Force a crash from a manic episode (currently being remade)")
+        print("Option 7: Force a manic episode")
+        print("Option 8: Force a crash from a manic episode")
         print("Option 9: Medication reset")
         print("Option 10: End the script")
         print("Any other number: Do nothing")
