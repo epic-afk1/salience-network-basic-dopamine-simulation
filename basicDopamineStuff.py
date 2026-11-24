@@ -858,13 +858,13 @@ while script_running==True:
             dopamine_relative_activity=round(dopamine_relative_activity+0.01,2)
 
         if bipolar==True: # DAT density getting out of control if dopamine levels escalate (too much or too little) in an individual with Bipolar Disorder
-            if relative>2:
+            if relative>1.5:
                 dat_relative_activity=max(round(dat_relative_activity-0.0002,6),dat_relative_lower_cap)
-                if random.randint(1,50)==1: # Uncontrolled increases in firing in people with Bipolar Disorder if dopamine levels overwhelm the salience network
-                    dopamine_relative_activity=round(dopamine_relative_activity + relative*random.randint(1,10)/100,2)
-            elif relative<0.8:
+                if random.randint(1,2)==1: # Uncontrolled increases in firing in people with Bipolar Disorder if dopamine levels overwhelm the salience network
+                    dopamine_relative_activity=round(dopamine_relative_activity + relative*0.01,2)
+            elif relative<0.85:
                 dat_relative_activity=min(round(dat_relative_activity+0.0002,6),dat_relative_upper_cap)
-        
+                
         if dopamine_relative_activity>dopamine_relative_upper_cap:
             dopamine_relative_activity=dopamine_relative_upper_cap
         elif dopamine_relative_activity<dopamine_relative_lower_cap:
