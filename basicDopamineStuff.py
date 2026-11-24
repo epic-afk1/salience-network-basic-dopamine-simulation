@@ -899,7 +899,7 @@ while script_running==True:
                     dopamine_relative_activity=round(dopamine_relative_activity + relative*0.01,4)
                 if relative>1.6:
                     dat_relative_activity=max(round(dat_relative_activity - 0.0002*relative,6),dat_relative_lower_cap)
-            elif relative<=0.9:
+            elif relative<=0.85:
                 dat_relative_activity=min(round(dat_relative_activity + 0.0002/relative,6),dat_relative_upper_cap) 
                 
         if dopamine_relative_activity>dopamine_relative_upper_cap:
@@ -910,7 +910,7 @@ while script_running==True:
 
         mood=round(mood + (min(1.5,relative)**2 - 1)*relative_recovery*0.001, 6) # Something being engaging on its own might slightly lift up someone's mood
 
-        psychosisRisk+=random.randint(round(relative-20), round(relative*abs(100-nmda_active_total))) # Stressors and currently existing aberrant salience episodes can make future aberrant salience more likely, from my point of knowledge
+        psychosisRisk+=random.randint(round(relative-20), round(relative**2 * abs(100-nmda_active_total))) # Stressors and currently existing aberrant salience episodes can make future aberrant salience more likely, from my point of knowledge
         if psychosisRisk<0:
             psychosisRisk=0
         elif psychosisRisk>95:
@@ -968,7 +968,7 @@ while script_running==True:
         elif reward/expectation>1.5 and (seconds==0 or speed_up==False):
             print("Positively surprised!")
 
-        mood = round(mood + ((reward/expectation)**2 - 1)*relative_recovery*0.001,6) # Good and bad surprises affecting the mood
+        mood = round(mood + ((reward/expectation)**2 - 1)*relative_recovery*0.0001,6) # Good and bad surprises affecting the mood, but with a low multiplier to avoid rapid stacking during a long activity
         
         if mood>1.5:
             mood=1.5
