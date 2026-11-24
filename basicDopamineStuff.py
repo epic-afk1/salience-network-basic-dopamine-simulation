@@ -895,7 +895,7 @@ while script_running==True:
 
         if bipolar==True:  # DAT density getting out of control if dopamine levels escalate (too much or too little) in an individual with Bipolar Disorder
             if relative>1.4:
-                if random.randint(1,3)==1: # Uncontrolled increases in firing in people with Bipolar Disorder if dopamine levels overwhelm the salience network
+                if random.randint(1,2)==1: # Uncontrolled increases in firing in people with Bipolar Disorder if dopamine levels overwhelm the salience network
                     dopamine_relative_activity=round(dopamine_relative_activity + relative*0.01,4)
                 if relative>1.6:
                     dat_relative_activity=max(round(dat_relative_activity - 0.0002*relative,6),dat_relative_lower_cap)
@@ -908,7 +908,7 @@ while script_running==True:
             dopamine_relative_activity=dopamine_relative_lower_cap
         
 
-        mood=round(mood + (relative**2 - 1)*relative_recovery*0.0005, 6) # Something being engaging on its own might slightly lift up someone's mood
+        mood=round(mood + (min(1.5,relative)**2 - 1)*relative_recovery*0.001, 6) # Something being engaging on its own might slightly lift up someone's mood
 
         psychosisRisk+=random.randint(round(relative-20), round(relative*abs(100-nmda_active_total))) # Stressors and currently existing aberrant salience episodes can make future aberrant salience more likely, from my point of knowledge
         if psychosisRisk<0:
@@ -919,7 +919,7 @@ while script_running==True:
         hallucination="idle"
         if inMind=="idle":
             if relative>9 and random.randint(1, 100-shiftToAuditoryVoices)==1:
-                mood=round(mood - 2 * (relative**2 - 1)*relative_recovery*0.0005, 6)
+                mood=round(mood - 2 * (relative**2 - 1)*relative_recovery*0.001, 6)
                 if nmda_cap>70 and random.randint(1,50)==1:
                     nmda_cap=round(nmda_cap-0.01,2)
                 if activity != "idle" and activity in auditory_hallucinations:
@@ -931,7 +931,7 @@ while script_running==True:
             elif relative>8:
                 if random.randint(1,5)==1:
                     shiftToAuditoryVoices=min(98, round(shiftToAuditoryVoices+1))
-                mood=round(mood - (relative**2 - 1)*relative_recovery*0.0005, 6) # Despite the engagement lifting up the mood, an experience this distressing can quickly turn things around
+                mood=round(mood - (relative**2 - 1)*relative_recovery*0.001, 6) # Despite the engagement lifting up the mood, an experience this distressing can quickly turn things around
                 if activity != "idle" and activity in delusional_beliefs:
                     delusion=delusional_beliefs[activity]
                     x=1
