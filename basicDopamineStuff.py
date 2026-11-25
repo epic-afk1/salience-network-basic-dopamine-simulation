@@ -780,7 +780,7 @@ while script_running==True:
         antipsychotic_strain = typical_antipsychotics**3 / 5000000
         nmda_deviation = abs(1 - (nmda_active_total / 100))**4
         nmda_excitotoxicity = max(0, (nmda_active_total / 100)**2 - 1)
-        sleep_deprivation_strain = sleep_deprivation_rate/1000
+        sleep_deprivation_strain = sleep_deprivation_rate/10000
 
         deathChance = round(deathChance + (bmi_strain + stim_strain + antipsychotic_strain + nmda_deviation + nmda_excitotoxicity + sleep_deprivation_strain - 0.1)/20, 3)
         
@@ -902,17 +902,17 @@ while script_running==True:
             x=0
 
         if relative>1.1:
-            dopamine_relative_activity=round(dopamine_relative_activity - max(0.001, 0.01/(1+sleep_deprivation_rate)) * max(dopamine_relative_lower_cap,dopamine_relative_activity),4) 
+            dopamine_relative_activity=round(dopamine_relative_activity - max(0.0001, 0.01/(1+sleep_deprivation_rate)) / max(dopamine_relative_lower_cap,dopamine_relative_activity),4) 
         elif relative<0.9:
-            dopamine_relative_activity=round(dopamine_relative_activity + min(0.1, 0.01*(1+sleep_deprivation_rate)) / max(dopamine_relative_lower_cap,dopamine_relative_activity),4) # Sleep deprivation apparently increases phasic dopamine firing
+            dopamine_relative_activity=round(dopamine_relative_activity + min(1, 0.01*(1+sleep_deprivation_rate)) / max(dopamine_relative_lower_cap,dopamine_relative_activity),4) # Sleep deprivation apparently increases phasic dopamine firing
 
         if bipolar==True:  # DAT density getting out of control if dopamine levels escalate (too much or too little) in an individual with Bipolar Disorder
             if relative>1.5:
                 if random.randint(1,2)==1: # Uncontrolled increases in firing in people with Bipolar Disorder if dopamine levels overwhelm the salience network
                     dopamine_relative_activity=round(dopamine_relative_activity + relative*0.01,4)
-                if relative>2:
+                if relative>1.8:
                     dat_relative_activity=max(round(dat_relative_activity - 0.0002*relative,6),dat_relative_lower_cap)
-            elif relative<=0.9:
+            elif relative<=0.85:
                 dat_relative_activity=min(round(dat_relative_activity + 0.0002/relative,6),dat_relative_upper_cap) 
                 
         if dopamine_relative_activity>dopamine_relative_upper_cap:
