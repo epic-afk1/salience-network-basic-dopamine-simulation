@@ -81,16 +81,16 @@ if simulation.lower()=="bipolar with adhd":
 if simulation.lower()=="schizoaffective disorder bipolar type":
     bipolar=True
     psychosisRisk=75
-    nmda_active=75
-    nmda_cap=85
-    shiftToAuditoryVoices=95
+    nmda_active=70
+    nmda_cap=80
+    shiftToAuditoryVoices=98
 
 elif simulation.lower()=="schizoaffective disorder bipolar type with adhd":
     bipolar=True
     psychosisRisk=75
-    nmda_active=75
-    nmda_cap=85
-    shiftToAuditoryVoices=95
+    nmda_active=70
+    nmda_cap=80
+    shiftToAuditoryVoices=98
     dat_relative_upper_cap=1.5
     dat_relative_activity=1.3
     tolerance=-15
@@ -105,12 +105,12 @@ elif simulation.lower()=="schizophrenia":
     psychosisRisk=75
     nmda_active=70
     nmda_cap=80
-    shiftToAuditoryVoices=95
+    shiftToAuditoryVoices=98
     
 elif simulation.lower()=="schizotypal personality disorder":
     tolerance=-30
     psychosisRisk=25
-    nmda_active=80
+    nmda_active=90
     nmda_cap=90
     shiftToAuditoryVoices=5
     
@@ -164,7 +164,7 @@ activity_pool = {
     
     # 🟡 Mild Comforts / Routine Habits (40-79)
     "scrolling social media": 65, "watching a movie clip": 70, "checking notifications": 60,
-    "petting a friendly dog": 75, "stretching after waking up": 55, "cleaning up a desk": 50,
+    "petting a friendly dog": 75, "cleaning up a desk": 50,
     "cooking a standard meal": 62, "chatting with a classmate": 68, "walking through a park": 72,
     "listening to a podcast": 58, "playing a casual mobile game": 64, "reading a comic book": 55,
     "organizing a wardrobe": 48, "buying a new t-shirt": 70, "drinking a glass of milk": 45,
@@ -190,7 +190,7 @@ activity_pool = {
     "stubbing a toe on a table": 2, "dropping a phone on the floor": 5, "spilling coffee on a shirt": 4,
     "stepping in a cold puddle": 6, "forgetting a vital password": 3, "burning a slice of toast": 8,
     "missing a bus by one second": 5, "hearing a loud car alarm": 9, "losing a house key": 1,
-    "getting a paper cut": 3, "waking up from a nightmare": 2, "breaking a favorite coffee mug": 7,
+    "getting a paper cut": 3, "breaking a favorite coffee mug": 7,
     "running out of phone battery": 6, "having a slow Wi-Fi dropout": 4, "biting your own tongue": 2,
     "dropping ice cream on concrete": 5, "getting an unexpected bill": 8, "getting caught in a downpour": 10,
     "scratching a car bumper": 4, "losing a long game progress": 3,
@@ -210,7 +210,7 @@ activity_durations = {
     
     # Mild Comforts
     "scrolling social media": 30, "watching a movie clip": 40, "checking notifications": 5,
-    "petting a friendly dog": 12, "stretching after waking up": 4, "cleaning up a desk": 15,
+    "petting a friendly dog": 12, "cleaning up a desk": 15,
     "cooking a standard meal": 35, "chatting with a classmate": 18, "walking through a park": 45,
     "listening to a podcast": 50, "playing a casual mobile game": 25, "reading a comic book": 22,
     "organizing a wardrobe": 40, "buying a new t-shirt": 15, "drinking a glass of milk": 4,
@@ -236,7 +236,7 @@ activity_durations = {
     "stubbing a toe on a table": 2, "dropping a phone on the floor": 3, "spilling coffee on a shirt": 4,
     "stepping in a cold puddle": 3, "forgetting a vital password": 12, "burning a slice of toast": 5,
     "missing a bus by one second": 10, "hearing a loud car alarm": 15, "losing a house key": 25,
-    "getting a paper cut": 2, "waking up from a nightmare": 8, "breaking a favorite coffee mug": 6,
+    "getting a paper cut": 2, "breaking a favorite coffee mug": 6,
     "running out of phone battery": 5, "having a slow Wi-Fi dropout": 20, "biting your own tongue": 2,
     "dropping ice cream on concrete": 4, "getting an unexpected bill": 10, "getting caught in a downpour": 30,
     "scratching a car bumper": 8, "losing a long game progress": 15,
@@ -271,7 +271,6 @@ delusional_beliefs = {
     "watching a movie clip": "The facial recognition scanner in the frame just locked my location.",
     "checking notifications": "That alert means the perimeter fence has been cut.",
     "petting a friendly dog": "The fur is coated in an invisible contact poison meant for me.",
-    "stretching after waking up": "My joints locked because the suit under my skin is tightening.",
     "cleaning up a desk": "Removing these papers exposed the hidden listening wire beneath the wood.",
     "cooking a standard meal": "The gas burner is leaking an odorless chemical meant to paralyze me.",
     "chatting with a classmate": "Her eyes blinked in a code that signaled someone behind me to strike.",
@@ -336,7 +335,6 @@ delusional_beliefs = {
     "hearing a loud car alarm": "That sound is a sonic weapon tuned to rupture my internal organs.",
     "losing a house key": "They stole the key to make sure I am locked inside when the fire starts.",
     "getting a paper cut": "The paper edge was dipped in an anticoagulant; I will bleed out.",
-    "waking up from a nightmare": "The threat in the dream just crossed over into the corner of this room.",
     "breaking a favorite coffee mug": "The ceramic shard cut my shoe and poisoned my bloodstream.",
     "running out of phone battery": "The black screen means my heart rate monitor signal was cut.",
     "having a slow Wi-Fi dropout": "They jammed the network so I cannot call for emergency help.",
@@ -381,7 +379,6 @@ auditory_hallucinations = {
     "watching a movie clip": "The person on screen sees you.",
     "checking notifications": "That message was a command to strike.",
     "petting a friendly dog": "Its fur is covered in poison.",
-    "stretching after waking up": "Your joints are snapping.",
     "cleaning up a desk": "You exposed the microphone.",
     "cooking a standard meal": "The gas is filling the room.",
     "chatting with a classmate": "She's signaling the sniper right now.",
@@ -446,7 +443,6 @@ auditory_hallucinations = {
     "hearing a loud car alarm": "That frequency is shattering your organs.",
     "losing a house key": "Now you can't lock them out.",
     "getting a paper cut": "You are going to bleed out.",
-    "waking up from a nightmare": "Look at the corner of the room.",
     "breaking a favorite coffee mug": "The shards are poisoned.",
     "running out of phone battery": "Your signal just went flatline.",
     "having a slow Wi-Fi dropout": "They cut your connection to the outside.",
@@ -826,6 +822,8 @@ while script_running==True:
             print("Expected reward: "+str(expectation))
             print("Actual reward: "+str(reward))
         rpe=reward-expectation
+        if activity=="sleeping":
+            rpe=0
         anomaly=abs(rpe)
         if anomaly>480:
             anomaly=480
@@ -932,7 +930,7 @@ while script_running==True:
             mood=round(mood + (min(1.5,relative)**2 - (sleep_deprivation_rate + 1))*relative_recovery*0.001/max(0.1,mood), 6) # Something being engaging on its own might slightly lift up someone's mood
 
         if activity!="sleeping":
-            sleep_needed=round(sleep_needed+0.5, 2)
+            sleep_needed=round(sleep_needed + 0.4*relative, 2)
         else:
             sleep_needed=max(0, round(sleep_needed-1, 2))
         sleep_deprivation_rate=round(max(0, (sleep_needed-28800)/14400),2)
