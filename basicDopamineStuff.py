@@ -15,8 +15,8 @@ highest_valued_activity="idle"
 print("Which simulation would you like to choose?")
 # Options: "default", "random", "Schizophrenia", "Schizoaffective Disorder Bipolar Type", "Schizotypal Personality Disorder", "ADHD", "Mania", "Major Depressive Disorder", "Bipolar Depression"
 simulation_list=["default", "random", "Schizophrenia", "Schizoaffective Disorder Bipolar Type", "Schizotypal Personality Disorder", "ADHD", "Mania", "Major Depressive Disorder", "Bipolar Depression", "Bipolar inter-episode", "Bipolar with ADHD", "Schizoaffective Disorder Bipolar Type with ADHD"]
-sleep_needed = 28800 # In seconds, default: 28800 (8 hours)
-sleep_deprivation_rate = round(max(0, (sleep_needed-64800)/14400),2) # default: round(max(0, (sleep_needed-64800)/14400),2)
+sleep_needed = 0 # In seconds, default: 28800 (8 hours)
+sleep_deprivation_rate = round(max(0, (sleep_needed-28800)/14400),2) # default: round(max(0, (sleep_needed-28800)/14400),2)
 
 for i in simulation_list:
     print(str(simulation_list.index(i)+1)+": "+i)
@@ -921,7 +921,9 @@ while script_running==True:
 
         if activity!="sleeping":
             sleep_needed=round(sleep_needed+0.5, 2)
-        sleep_deprivation_rate = round(max(0, (sleep_needed-64800)/14400),2)
+        else:
+            sleep_needed=max(0, round(sleep_needed-1, 2))
+        sleep_deprivation_rate=round(max(0, (sleep_needed-28800)/14400),2)
         expectations["sleeping"]=round(sleep_deprivation_rate**2 * mood)
         
         psychosisRisk+=random.randint(round(relative-20), round(sleep_deprivation_rate + relative**2 * abs(100-nmda_active_total))) # Stressors and currently existing aberrant salience episodes can make future aberrant salience more likely, from my point of knowledge
