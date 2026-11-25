@@ -60,6 +60,11 @@ substanceInput=input("Should the agent be able to discover certain substances by
 if substanceInput=="y" or substanceInput=="yes":
     substancesInvolved=True
 
+canSleep=False
+sleepInput=input("Should the agent be able to sleep on its own without ever having manually done the activity 'sleeping'? (Y/N) ").lower().strip()
+if sleepInput=="y" or sleepInput=="yes":
+    canSleep=True
+
 simulation=simulation.lower().strip()
 
 if simulation=="random":
@@ -167,7 +172,7 @@ activity_pool = {
     "daydreaming about vacation": 59, "doodling on a notebook": 42, "checking the weather forecast": 44,
     "folding warm laundry": 46, "polishing a pair of shoes": 41, "watching the rain fall": 53,
     "drinking a warm cup of tea": 68, "re-reading an old message": 57, "singing in the shower": 63,
-    "brushing your teeth": 45, "applying nice smelling lotion": 51, "looking at old photographs": 67, "sleeping":50,
+    "brushing your teeth": 45, "applying nice smelling lotion": 51, "looking at old photographs": 67,
     # Some medications are excluded to avoid the agent self-medicating non-recreational substances
     
     # 🟠 Monotonous / Low-Reward Chores (20-39)
@@ -569,6 +574,9 @@ if substancesInvolved==True:
     activity_pool["stimulant injection"]=50
     activity_pool["dissociative nasal use"]=50
 
+if canSleep==True:
+    activity_pool["sleeping"]=50
+
 expectations["sleeping"]=round(sleep_deprivation_rate**2 * mood)
 
 x = 0
@@ -902,7 +910,7 @@ while script_running==True:
             x=0
 
         if relative>1.1:
-            dopamine_relative_activity=round(dopamine_relative_activity - max(0.0001, 0.01/(1+sleep_deprivation_rate)) / max(dopamine_relative_lower_cap,dopamine_relative_activity),4) 
+            dopamine_relative_activity=round(dopamine_relative_activity - max(0.0001, 0.01/(1+sleep_deprivation_rate)) * max(dopamine_relative_lower_cap,dopamine_relative_activity),4) 
         elif relative<0.9:
             dopamine_relative_activity=round(dopamine_relative_activity + min(1, 0.01*(1+sleep_deprivation_rate)) / max(dopamine_relative_lower_cap,dopamine_relative_activity),4) # Sleep deprivation apparently increases phasic dopamine firing
 
