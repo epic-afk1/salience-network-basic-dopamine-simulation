@@ -150,7 +150,7 @@ acuteTolerance=tolerance # In percent, from -70 to 60, default = tolerance
 activity_pool = {
     # 🟢 High Payouts / Biological Imperatives (80-100)
     "eating pizza": 85, "drinking water while thirsty": 90, "winning a competitive game": 88,
-    "getting a huge compliment": 82, "receiving an unexpected gift": 85, "sleeping after a long day": 90,
+    "getting a huge compliment": 82, "receiving an unexpected gift": 85, 
     "drinking a hot coffee": 80, "eating chocolate cake": 87, "solving a hard puzzle": 83,
     "hitting a new personal record": 95, "getting an A on an exam": 90, "finishing a major project": 92,
     "taking a hot shower in winter": 88, "hearing your favorite song": 80, "laughing at a great joke": 84,
@@ -188,7 +188,7 @@ activity_pool = {
     "getting a paper cut": 3, "waking up from a nightmare": 2, "breaking a favorite coffee mug": 7,
     "running out of phone battery": 6, "having a slow Wi-Fi dropout": 4, "biting your own tongue": 2,
     "dropping ice cream on concrete": 5, "getting an unexpected bill": 8, "getting caught in a downpour": 10,
-    "oversleeping a critical alarm": 1, "scratching a car bumper": 4, "losing a long game progress": 3,
+    "scratching a car bumper": 4, "losing a long game progress": 3,
     "misplacing your headphones": 9, "stepping on a sharp Lego brick": 2, "getting a spam phone call": 7,
     "spoiling a fresh carton of milk": 8
 }
@@ -196,7 +196,7 @@ activity_pool = {
 activity_durations = {
     # High Payouts
     "eating pizza": 15, "drinking water while thirsty": 3, "winning a competitive game": 20,
-    "getting a huge compliment": 4, "receiving an unexpected gift": 6, "sleeping after a long day": 45,
+    "getting a huge compliment": 4, "receiving an unexpected gift": 6,
     "drinking a hot coffee": 12, "eating chocolate cake": 10, "solving a hard puzzle": 25,
     "hitting a new personal record": 8, "getting an A on an exam": 5, "finishing a major project": 30,
     "taking a hot shower in winter": 18, "hearing your favorite song": 14, "laughing at a great joke": 4,
@@ -234,7 +234,7 @@ activity_durations = {
     "getting a paper cut": 2, "waking up from a nightmare": 8, "breaking a favorite coffee mug": 6,
     "running out of phone battery": 5, "having a slow Wi-Fi dropout": 20, "biting your own tongue": 2,
     "dropping ice cream on concrete": 4, "getting an unexpected bill": 10, "getting caught in a downpour": 30,
-    "oversleeping a critical alarm": 12, "scratching a car bumper": 8, "losing a long game progress": 15,
+    "scratching a car bumper": 8, "losing a long game progress": 15,
     "misplacing your headphones": 18, "stepping on a sharp Lego brick": 2, "getting a spam phone call": 6,
     "spoiling a fresh carton of milk": 5
 }
@@ -246,7 +246,6 @@ delusional_beliefs = {
     "winning a competitive game": "The screen broadcasted my location; they are coming through the front door.",
     "getting a huge compliment": "He just marked me for target identification using a verbal trigger.",
     "receiving an unexpected gift": "There is a pressure-plate explosive packed inside this box.",
-    "sleeping after a long day": "If I close my eyes, the air in this room will be replaced with gas.",
     "drinking a hot coffee": "The heat is concealing the taste of acid dissolving my esophagus.",
     "eating chocolate cake": "I just ingested a dormant parasite that is starting to hatch.",
     "solving a hard puzzle": "Unlocking that sequence alerted the orbital tracking system to my coordinates.",
@@ -340,7 +339,6 @@ delusional_beliefs = {
     "dropping ice cream on concrete": "The stain is a chemical signal marking where I am standing.",
     "getting an unexpected bill": "This letter is a formal notice that my life termination has been funded.",
     "getting caught in a downpour": "The rain drops are carrying corrosive fallout that is burning my skin.",
-    "oversleeping a critical alarm": "They flooded the room with sleeping gas to keep me here for them.",
     "scratching a car bumper": "The metal scraping against metal ignited a spark near the fuel tank.",
     "losing a long game progress": "The memory wipe corrupted the chip controlling my body's reflexes.",
     "misplacing your headphones": "They took them to listen to the audio feeds inside my head.",
@@ -358,7 +356,6 @@ auditory_hallucinations = {
     "winning a competitive game": "They know where you are now.",
     "getting a huge compliment": "He is lying to trap you.",
     "receiving an unexpected gift": "Do not open that box.",
-    "sleeping after a long day": "If you sleep, you won't wake up.",
     "drinking a hot coffee": "It is burning your inside away.",
     "eating chocolate cake": "Look at what is moving inside it.",
     "solving a hard puzzle": "You just gave them the key.",
@@ -452,7 +449,6 @@ auditory_hallucinations = {
     "dropping ice cream on concrete": "You marked the exact spot for them.",
     "getting an unexpected bill": "They just priced your life.",
     "getting caught in a downpour": "The rain is eating away your skin.",
-    "oversleeping a critical alarm": "They trapped you in your sleep.",
     "scratching a car bumper": "The spark is going to ignite the tank.",
     "losing a long game progress": "Your brain wiped the memory sector.",
     "misplacing your headphones": "They are using them to hear your thoughts.",
@@ -911,12 +907,12 @@ while script_running==True:
             dopamine_relative_activity=round(dopamine_relative_activity + min(0.1, 0.01*(1+sleep_deprivation_rate)) / max(dopamine_relative_lower_cap,dopamine_relative_activity),4) # Sleep deprivation apparently increases phasic dopamine firing
 
         if bipolar==True:  # DAT density getting out of control if dopamine levels escalate (too much or too little) in an individual with Bipolar Disorder
-            if relative>1.4:
+            if relative>1.5:
                 if random.randint(1,2)==1: # Uncontrolled increases in firing in people with Bipolar Disorder if dopamine levels overwhelm the salience network
                     dopamine_relative_activity=round(dopamine_relative_activity + relative*0.01,4)
-                if relative>1.6:
+                if relative>2:
                     dat_relative_activity=max(round(dat_relative_activity - 0.0002*relative,6),dat_relative_lower_cap)
-            elif relative<=0.8:
+            elif relative<=0.9:
                 dat_relative_activity=min(round(dat_relative_activity + 0.0002/relative,6),dat_relative_upper_cap) 
                 
         if dopamine_relative_activity>dopamine_relative_upper_cap:
