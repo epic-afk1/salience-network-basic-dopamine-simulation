@@ -788,7 +788,7 @@ while script_running==True:
         antipsychotic_strain = typical_antipsychotics**3 / 5000000
         nmda_deviation = abs(1 - (nmda_active_total / 100))**4
         nmda_excitotoxicity = max(0, (nmda_active_total / 100)**2 - 1)
-        sleep_deprivation_strain = sleep_deprivation_rate/10000
+        sleep_deprivation_strain = sleep_deprivation_rate**2/10000
 
         deathChance = round(deathChance + (bmi_strain + stim_strain + antipsychotic_strain + nmda_deviation + nmda_excitotoxicity + sleep_deprivation_strain - 0.1)/20, 3)
         
@@ -928,8 +928,8 @@ while script_running==True:
         elif dopamine_relative_activity<dopamine_relative_lower_cap:
             dopamine_relative_activity=dopamine_relative_lower_cap
         
-
-        mood=round(mood + (min(1.5,relative)**2 - (sleep_deprivation_rate + 1))*relative_recovery*0.001/max(0.1,mood), 6) # Something being engaging on its own might slightly lift up someone's mood
+        if activity!="sleeping":
+            mood=round(mood + (min(1.5,relative)**2 - (sleep_deprivation_rate + 1))*relative_recovery*0.001/max(0.1,mood), 6) # Something being engaging on its own might slightly lift up someone's mood
 
         if activity!="sleeping":
             sleep_needed=round(sleep_needed+0.5, 2)
@@ -996,7 +996,8 @@ while script_running==True:
         elif reward/expectation>1.5 and (seconds==0 or speed_up==False):
             print("Positively surprised!")
 
-        mood = max(0.1,round(mood + ((reward/expectation)**2 - (sleep_deprivation_rate + 1))*relative_recovery*0.0001/max(0.1,mood),6)) # Good and bad surprises affecting the mood, but with a low multiplier to avoid rapid stacking during a long activity
+        if activity!="sleeping":
+            mood = max(0.1,round(mood + ((reward/expectation)**2 - (sleep_deprivation_rate + 1))*relative_recovery*0.0001/max(0.1,mood),6)) # Good and bad surprises affecting the mood, but with a low multiplier to avoid rapid stacking during a long activity
         
         if mood>1.5:
             mood=1.5
@@ -1108,6 +1109,7 @@ while script_running==True:
                 dat_relative_upper_cap=max(1.25, dat_relative_upper_cap)
             dopamine_relative_activity=3
             dat_relative_activity=0.75
+            sleep_needed=max(sleep_needed, 57600)
             print("Forced a manic episode!")
         elif optionChosen==8:
             if bipolar==False:
@@ -1120,6 +1122,7 @@ while script_running==True:
             dat_relative_activity=1.25
             tolerance=60
             acuteTolerance=60
+            sleep_needed=min(sleep_needed, 28800) # This line makes sure that severe sleep deprivation doesn't instantly switch a manic agent back to mania
             print("Forced a depressive crash from a manic episode!")
         elif optionChosen==9:
             stimulants=0
