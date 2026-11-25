@@ -573,7 +573,7 @@ if substancesInvolved==True:
     activity_pool["stimulant injection"]=50
     activity_pool["dissociative nasal use"]=50
 
-expectations["sleeping"]=(50+sleep_deprivation_rate)*mood
+expectations["sleeping"]=round(sleep_deprivation_rate**2 * mood)
 
 x = 0
 
@@ -812,8 +812,11 @@ while script_running==True:
             idx=activity_history.index(activity)
             activity_history.append(activity_history.pop(idx))
         if len(activity_history) > 25:
-            old=activity_history.pop(0)
-            del expectations[old]
+            if activity_history[0]=="sleeping":
+                old=activity_history.pop(1)
+            else:
+                old=activity_history.pop(0)
+            expectations.pop(old, None)
         expectation=expectations[activity]
         if show_details==True and (seconds==0 or speed_up==False):
             print("Expected reward: "+str(expectation))
@@ -842,7 +845,12 @@ while script_running==True:
             SN_DA=1000
 
         if show_details==True and (seconds==0 or speed_up==False):
+            if sleep_deprivation_rate>0:
+                sleep_deprived=True
+            else:
+                sleep_deprived=False
             print("Has Bipolar Disorder: "+str(bipolar))
+            print("Sleep deprived: "+str(sleep_deprived))
             print("Death chance: "+str(round(deathChance,2))+"%")
             print("DA levels in the SN: " +str(SN_DA))
             print("Stimulant amount: "+str(round(stimulants,2))+"mg")
@@ -935,9 +943,9 @@ while script_running==True:
         hallucination="idle"
         if inMind=="idle" and activity!="sleeping":
             if relative>9 and random.randint(1, 100-shiftToAuditoryVoices)==1:
-                mood=round(mood - (relative**2 + sleep_deprivation_rate - 1)*relative_recovery*0.001/max(0.1,mood), 6)
+                mood=max(0.1,round(mood - (relative**2 + sleep_deprivation_rate - 1)*relative_recovery*0.001/max(0.1,mood), 6))
                 if nmda_cap>70 and random.randint(1,50)==1:
-                    nmda_cap=round(nmda_cap-0.01,2)
+                    nmda_cap=round(nmda_cap-0.01*(sleep_deprivation_rate+1),2)
                 if activity != "idle" and activity in auditory_hallucinations:
                     hallucination=auditory_hallucinations[activity]
                     x=1
@@ -947,7 +955,7 @@ while script_running==True:
             elif relative>8:
                 if random.randint(1,5)==1:
                     shiftToAuditoryVoices=min(98, round(shiftToAuditoryVoices+1))
-                mood=round(mood - (relative**2 + sleep_deprivation_rate - 1)*relative_recovery*0.001/max(0.1,mood), 6) # Despite the engagement lifting up the mood, an experience this distressing can quickly turn things around
+                mood=max(0.1,round(mood - (relative**2 + sleep_deprivation_rate - 1)*relative_recovery*0.001/max(0.1,mood), 6)) # Despite the engagement lifting up the mood, an experience this distressing can quickly turn things around
                 if activity != "idle" and activity in delusional_beliefs:
                     delusion=delusional_beliefs[activity]
                     x=1
@@ -984,7 +992,7 @@ while script_running==True:
         elif reward/expectation>1.5 and (seconds==0 or speed_up==False):
             print("Positively surprised!")
 
-        mood = round(mood + ((reward/expectation)**2 - (sleep_deprivation_rate + 1))*relative_recovery*0.0001/max(0.1,mood),6) # Good and bad surprises affecting the mood, but with a low multiplier to avoid rapid stacking during a long activity
+        mood = max(0.1,round(mood + ((reward/expectation)**2 - (sleep_deprivation_rate + 1))*relative_recovery*0.0001/max(0.1,mood),6)) # Good and bad surprises affecting the mood, but with a low multiplier to avoid rapid stacking during a long activity
         
         if mood>1.5:
             mood=1.5
@@ -1085,6 +1093,7 @@ while script_running==True:
             print(["antipsychotic injection", "antipsychotic oral use","dissociative nasal use", "stimulant injection", "stimulant oral use","dissociative oral use"])
         elif optionChosen==6:
             psychosisRisk=95
+            SN_DA=1000
             print("Psychosis risk set to 95%!")
         elif optionChosen==7:
             if bipolar==False:
