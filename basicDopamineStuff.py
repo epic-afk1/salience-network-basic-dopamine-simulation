@@ -791,7 +791,7 @@ while script_running==True:
         antipsychotic_strain = typical_antipsychotics**3 / 5000000
         nmda_deviation = abs(1 - (nmda_active_total / 100))**3
         nmda_excitotoxicity = max(0, (nmda_active_total / 100)**2 - 1)
-        sleep_deprivation_strain = sleep_deprivation_rate**4/100000
+        sleep_deprivation_strain = sleep_deprivation_rate**3/1000000
 
         deathChance = round(deathChance + (bmi_strain + stim_strain + antipsychotic_strain + nmda_deviation + nmda_excitotoxicity + sleep_deprivation_strain - 0.1)/20, 3)
         
@@ -944,7 +944,7 @@ while script_running==True:
             mood=max(0.1,round(mood + (min(2,relative)**3 - 1)*relative_recovery*0.001/max(0.1,mood), 6)) # Something being engaging on its own might slightly lift up someone's mood, also with sleep_deprivation_rate removed here to make mood swings when sleep deprived more apparent than the mood consistently sinking
 
         if activity!="sleeping":
-            sleep_needed=round(sleep_needed + 0.3 * relative**3, 2)
+            sleep_needed=round(sleep_needed + 0.3 * relative**2, 2)
         else:
             sleep_needed=max(0, round(sleep_needed-1, 2))
         sleep_deprivation_rate=round(max(0, (sleep_needed-28800)/14400),2)
