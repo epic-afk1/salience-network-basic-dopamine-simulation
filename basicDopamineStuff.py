@@ -14,7 +14,7 @@ inMind="idle"
 highest_valued_activity="idle"
 print("Which simulation would you like to choose?")
 # Options: "default", "random", "Schizophrenia", "Schizoaffective Disorder Bipolar Type", "Schizotypal Personality Disorder", "ADHD", "Mania", "Major Depressive Disorder", "Bipolar Depression"
-simulation_list=["default", "random", "Schizophrenia", "Schizoaffective Disorder Bipolar Type", "Schizotypal Personality Disorder", "ADHD", "Mania", "Major Depressive Disorder", "Bipolar Depression", "Bipolar inter-episode", "Bipolar with ADHD", "Schizoaffective Disorder Bipolar Type with ADHD"]
+simulation_list=["default", "random", "Schizophrenia", "Schizoaffective Disorder Bipolar Type", "Schizotypal Personality Disorder", "ADHD", "Mania", "Major Depressive Disorder", "Bipolar Depression", "Bipolar inter-episode", "Bipolar with ADHD", "Schizoaffective Disorder Bipolar Type with ADHD", "Delusional Disorder"]
 sleep_needed = 0 # In seconds, default: 28800 (8 hours)
 sleep_deprivation_rate = round(max(0, (sleep_needed-28800)/14400),2) # default: round(max(0, (sleep_needed-28800)/14400),2)
 
@@ -99,6 +99,7 @@ elif simulation.lower()=="bipolar depression":
     bipolar=True
     tolerance=60
     dat_relative_activity=1.25
+    mood=0.1
 
 elif simulation.lower()=="schizophrenia":
     tolerance=-50
@@ -108,11 +109,10 @@ elif simulation.lower()=="schizophrenia":
     shiftToAuditoryVoices=98
     
 elif simulation.lower()=="schizotypal personality disorder":
-    tolerance=-30
+    tolerance=-15
     psychosisRisk=25
     nmda_active=90
-    nmda_cap=90
-    shiftToAuditoryVoices=5
+    nmda_cap=95
     
 elif simulation.lower()=="adhd": # This profile simulates the High-DAT subgroup of ADHD
     dopamine_relative_upper_cap=0.8
@@ -128,6 +128,7 @@ elif simulation.lower()=="mania":
     bipolar=True
     dopamine_relative_activity=3
     dat_relative_activity=0.75
+    sleep_needed=57600
     
 elif simulation.lower()=="major depressive disorder":
     tolerance=5
@@ -135,6 +136,12 @@ elif simulation.lower()=="major depressive disorder":
 
 elif simulation.lower()=="bipolar inter-episode":
     bipolar=True
+
+elif simulation.lower()=="delusional disorder":
+    tolerance=-30
+    psychosisRisk=75
+    nmda_active=80
+    nmda_cap=90
 
 if bipolar==True: # In my simulation specifically, it is characterized by DAT malfunctioning, and uncontrolled increases in firing
     dopamine_relative_lower_cap=0.5
@@ -644,7 +651,7 @@ while script_running==True:
                 else:
                     activity=input("What is the AI engaged with? ").lower().strip()
                 if activity=="random":
-                    available_activities=random.sample(list(activity_pool.keys()),round(len(list(activity_pool.keys()))/10))
+                    available_activities=random.sample(list(activity_pool.keys()),max(1,round(len(list(activity_pool.keys()))/25)))
                     activity = random.choice(available_activities)
                     for i in available_activities:
                         if i in expectations and (activity in expectations and expectations[i]>expectations[activity] or activity not in expectations) and expectations[i]>50:
@@ -893,7 +900,7 @@ while script_running==True:
             engagement_level="hyperfocused"
             body_weight = max(0, round(body_weight - 0.000001, 6)) # Not necessarily a per-second calculation in the real world but I want chronic severe dopamine surplus to lead to weight loss over time
             if activity=="sleeping" and random.randint(1, round(12-relative))==1: # Simulating insomnia at absurdly high dopamine levels
-                x=2
+                x=min(x, 5)
         elif relative > 1.1 and relative <= 2:
             engagement_level="engaged"
         elif relative > 0.9 and relative <= 1.1:
@@ -905,8 +912,15 @@ while script_running==True:
             body_weight = max(0, round(body_weight + 0.000001, 6)) # Apparently, a severe dopamine deficit can lead to an increase of appetite, and I want antipsychotics to not be "side-effect free" in this simulation
         else:
             engagement_level="frozen"
-            x=0
+            if activity!="sleeping":
+                x=0
+                if random.randint(1,10)==1:
+                    activity="sleeping"
+                    x=round(sleep_needed)
 
+        if activity=="sleeping" and sleep_needed < 5400 and random.randint(1,25)==1:
+            x=min(x, 5)
+        
         if relative>1.1:
             dopamine_relative_activity=round(dopamine_relative_activity - max(0.0001, 0.01/(1+sleep_deprivation_rate)) * max(dopamine_relative_lower_cap,dopamine_relative_activity),4) 
         elif relative<0.9:
@@ -927,10 +941,10 @@ while script_running==True:
             dopamine_relative_activity=dopamine_relative_lower_cap
         
         if activity!="sleeping":
-            mood=round(mood + (min(1.5,relative)**2 - (sleep_deprivation_rate + 1))*relative_recovery*0.001/max(0.1,mood), 6) # Something being engaging on its own might slightly lift up someone's mood
+            mood=max(0.1,round(mood + (min(2,relative)**3 - (1 + sleep_deprivation_rate))*relative_recovery*0.001/max(0.1,mood), 6)) # Something being engaging on its own might slightly lift up someone's mood
 
         if activity!="sleeping":
-            sleep_needed=round(sleep_needed + 0.4*relative, 2)
+            sleep_needed=round(sleep_needed + 0.3 * relative**3, 2)
         else:
             sleep_needed=max(0, round(sleep_needed-1, 2))
         sleep_deprivation_rate=round(max(0, (sleep_needed-28800)/14400),2)
@@ -945,7 +959,7 @@ while script_running==True:
         hallucination="idle"
         if inMind=="idle" and activity!="sleeping":
             if relative>9 and random.randint(1, 100-shiftToAuditoryVoices)==1:
-                mood=max(0.1,round(mood - (relative**2 + sleep_deprivation_rate - 1)*relative_recovery*0.001/max(0.1,mood), 6))
+                mood=max(0.1,round(mood - (min(2,relative)**3 - (1 - sleep_deprivation_rate))*relative_recovery*0.001/max(0.1,mood), 6))
                 if nmda_cap>70 and random.randint(1,50)==1:
                     nmda_cap=round(nmda_cap-0.01*(sleep_deprivation_rate+1),2)
                 if activity != "idle" and activity in auditory_hallucinations:
@@ -957,7 +971,9 @@ while script_running==True:
             elif relative>8:
                 if random.randint(1,5)==1:
                     shiftToAuditoryVoices=min(98, round(shiftToAuditoryVoices+1))
-                mood=max(0.1,round(mood - (relative**2 + sleep_deprivation_rate - 1)*relative_recovery*0.001/max(0.1,mood), 6)) # Despite the engagement lifting up the mood, an experience this distressing can quickly turn things around
+                mood=max(0.1,round(mood - (min(2,relative)**3 - (1 - sleep_deprivation_rate))*relative_recovery*0.001/max(0.1,mood), 6)) # Despite the engagement lifting up the mood, an experience this distressing can quickly turn things around
+                if nmda_cap>70 and random.randint(1,75)==1:
+                    nmda_cap=round(nmda_cap-0.01*(sleep_deprivation_rate+1),2)
                 if activity != "idle" and activity in delusional_beliefs:
                     delusion=delusional_beliefs[activity]
                     x=1
@@ -965,7 +981,7 @@ while script_running==True:
                 else:
                     delusion=random.choice(idle_delusional_beliefs)
                     x=1
-            elif random.randint(1,25)==1:
+            elif random.randint(1,75)==1:
                 shiftToAuditoryVoices=max(0, round(shiftToAuditoryVoices-1))
 
         if (seconds==0 or speed_up==False):
@@ -995,7 +1011,7 @@ while script_running==True:
             print("Positively surprised!")
 
         if activity!="sleeping":
-            mood = max(0.1,round(mood + ((reward/expectation)**2 - (sleep_deprivation_rate + 1))*relative_recovery*0.0001/max(0.1,mood),6)) # Good and bad surprises affecting the mood, but with a low multiplier to avoid rapid stacking during a long activity
+            mood = max(0.1,round(mood + ((reward/expectation)**3 - (1 + sleep_deprivation_rate))*relative_recovery*0.0001/max(0.1,mood),6)) # Good and bad surprises affecting the mood, but with a low multiplier to avoid rapid stacking during a long activity
         
         if mood>1.5:
             mood=1.5
@@ -1019,7 +1035,7 @@ while script_running==True:
         if activity!="sleeping": # I want sleeping to be an activity that one knows is important for survival, regardless of how they liked it
             expectations[activity]=max(1,round(expectation+learned_change,2))      
         
-        if stimulants>0 and "stimulant injection" in expectations:
+        if stimulants>0 and "stimulant injection" in expectations: # This comes first in the if-elif section so if the agent has ever used a substance recreationally, it will prefer the "fast" route
             expectations["stimulant injection"]=round(expectations["stimulant injection"]+learned_change*round(stimulants / (15 + stimulants),2),2) # An attempt at implementing addiction at higher doses, by making them think that they liked an activity more on them due to high engagement levels lifting the mood
             if expectations["stimulant injection"]<1:
                 expectations["stimulant injection"]=1
@@ -1038,11 +1054,11 @@ while script_running==True:
                 expectations["antipsychotic oral use"]=1
 
         if dissociatives>0 and "dissociative nasal use" in expectations:
-            expectations["dissociative nasal use"]=round(expectations["dissociative nasal use"]+learned_change*0.1,2) 
+            expectations["dissociative nasal use"]=round(expectations["dissociative nasal use"]+learned_change*0.1*relative_recovery,2) 
             if expectations["dissociative nasal use"]<1:
                 expectations["dissociative nasal use"]=1
         elif dissociatives>0 and "dissociative oral use" in expectations:
-            expectations["dissociative oral use"]=round(expectations["dissociative oral use"]+learned_change*0.1,2)
+            expectations["dissociative oral use"]=round(expectations["dissociative oral use"]+learned_change*0.1*relative_recovery,2)
             if expectations["dissociative oral use"]<1:
                 expectations["dissociative oral use"]=1
             
@@ -1050,11 +1066,17 @@ while script_running==True:
         if delusion!="idle": # Those I actually want to show without (seconds==0 or speed_up==False) so one can count delusions/hallucinations even if speed_up==True
             if not (seconds==0 or speed_up==False):
                 print(timeString)
-            print(delusion)
+                print(delusion)
+                print("")
+            else:  
+                print(delusion)
         elif hallucination!="idle":
             if not (seconds==0 or speed_up==False):
                 print(timeString)
-            sys.stderr.write(hallucination+"\n")
+                sys.stderr.write(hallucination+"\n")
+                print("")
+            else:
+                sys.stderr.write(hallucination+"\n")
             
         if seconds==0 or speed_up==False or delusion!="idle" or hallucination!="idle":
             print("")
