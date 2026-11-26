@@ -789,9 +789,9 @@ while script_running==True:
         bmi_strain = (abs(bmi - 26)/25) ** 4
         stim_strain = stimulants**3 / 10000000
         antipsychotic_strain = typical_antipsychotics**3 / 5000000
-        nmda_deviation = abs(1 - (nmda_active_total / 100))**4
+        nmda_deviation = abs(1 - (nmda_active_total / 100))**3
         nmda_excitotoxicity = max(0, (nmda_active_total / 100)**2 - 1)
-        sleep_deprivation_strain = sleep_deprivation_rate**2/10000
+        sleep_deprivation_strain = sleep_deprivation_rate**4/100000
 
         deathChance = round(deathChance + (bmi_strain + stim_strain + antipsychotic_strain + nmda_deviation + nmda_excitotoxicity + sleep_deprivation_strain - 0.1)/20, 3)
         
@@ -941,7 +941,7 @@ while script_running==True:
             dopamine_relative_activity=dopamine_relative_lower_cap
         
         if activity!="sleeping":
-            mood=max(0.1,round(mood + (min(2,relative)**3 - (1 + sleep_deprivation_rate))*relative_recovery*0.001/max(0.1,mood), 6)) # Something being engaging on its own might slightly lift up someone's mood
+            mood=max(0.1,round(mood + (min(2,relative)**3 - 1)*relative_recovery*0.001/max(0.1,mood), 6)) # Something being engaging on its own might slightly lift up someone's mood, also with sleep_deprivation_rate removed here to make mood swings when sleep deprived more apparent than the mood consistently sinking
 
         if activity!="sleeping":
             sleep_needed=round(sleep_needed + 0.3 * relative**3, 2)
@@ -959,7 +959,7 @@ while script_running==True:
         hallucination="idle"
         if inMind=="idle" and activity!="sleeping":
             if relative>9 and random.randint(1, 100-shiftToAuditoryVoices)==1:
-                mood=max(0.1,round(mood - (min(2,relative)**3 - (1 - sleep_deprivation_rate))*relative_recovery*0.001/max(0.1,mood), 6))
+                mood=max(0.1,round(mood - (min(2,relative)**3 - (1 + sleep_deprivation_rate))*relative_recovery*0.001/max(0.1,mood), 6))
                 if nmda_cap>70 and random.randint(1,50)==1:
                     nmda_cap=round(nmda_cap-0.01*(sleep_deprivation_rate+1),2)
                 if activity != "idle" and activity in auditory_hallucinations:
@@ -971,7 +971,7 @@ while script_running==True:
             elif relative>8:
                 if random.randint(1,5)==1:
                     shiftToAuditoryVoices=min(98, round(shiftToAuditoryVoices+1))
-                mood=max(0.1,round(mood - (min(2,relative)**3 - (1 - sleep_deprivation_rate))*relative_recovery*0.001/max(0.1,mood), 6)) # Despite the engagement lifting up the mood, an experience this distressing can quickly turn things around
+                mood=max(0.1,round(mood - (min(2,relative)**3 - (1 + sleep_deprivation_rate))*relative_recovery*0.001/max(0.1,mood), 6)) # Despite the engagement lifting up the mood, an experience this distressing can quickly turn things around
                 if nmda_cap>70 and random.randint(1,75)==1:
                     nmda_cap=round(nmda_cap-0.01*(sleep_deprivation_rate+1),2)
                 if activity != "idle" and activity in delusional_beliefs:
