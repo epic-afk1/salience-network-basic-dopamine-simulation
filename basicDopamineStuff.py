@@ -982,7 +982,7 @@ while script_running==True:
                     activity="sleeping"
                     x=round(sleep_needed)
 
-        if (relative>1.5 and activity=="sleeping" and random.randint(1, round(12-relative))==1) or (activity=="sleeping" and sleep_needed < 5400 and random.randint(1,round(max(2, sleep_needed)))==1): # Simulating insomnia at high dopamine levels or when simply not being tired
+        if (relative>1.3 and activity=="sleeping" and random.randint(1, round(12-relative))==1) or (activity=="sleeping" and sleep_needed < 5400 and random.randint(1,round(max(2, sleep_needed)))==1): # Simulating insomnia at high dopamine levels or when simply not being tired
             x=min(x, 5)
         
         if relative>1.1:
@@ -991,7 +991,7 @@ while script_running==True:
             dopamine_relative_activity=round(dopamine_relative_activity + min(1, 0.01*(1+sleep_deprivation_rate)) / max(dopamine_relative_lower_cap,dopamine_relative_activity),4) # Sleep deprivation apparently increases phasic dopamine firing
 
         if bipolar==True:  # DAT density getting out of control if dopamine levels escalate (too much or too little) in an individual with Bipolar Disorder
-            if relative>1.3:
+            if relative>1.5:
                 if random.randint(1,2)==1: # Uncontrolled increases in firing in people with Bipolar Disorder if dopamine levels overwhelm the salience network
                     dopamine_relative_activity=round(dopamine_relative_activity + relative*0.01,4)
                 if relative>1.7:
