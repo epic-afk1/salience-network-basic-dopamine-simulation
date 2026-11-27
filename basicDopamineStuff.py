@@ -67,18 +67,20 @@ if tempInput=="y" or tempInput=="yes":
     canSleep=True
 
 stimulantTreatment=False
+stimulantTreatmentSnapshot=-57600
 tempInput=input("Should the agent be getting stimulant treatment? (Y/N) ").lower().strip()
 if tempInput=="y" or tempInput=="yes":
     stimulantTreatment=True
 
 antipsychoticTreatment=False
+antipsychoticTreatmentSnapshot=-57600
 tempInput=input("Should the agent be getting antipsychotic medication treatment? (Y/N) ").lower().strip()
 if tempInput=="y" or tempInput=="yes":
     antipsychoticTreatment=True
 
 dissociativeTherapy=False
-dissociative_therapy_snapshot=0
-tempInput=input("Should the agent be involved in dissociative-assisted psychotherapy? (Y/N) ").lower().strip()
+dissociativeTherapySnapshot=0
+tempInput=input("Should the agent be involved in dissociative-assisted psychotherapy starting at day 3? (Y/N) ").lower().strip()
 if tempInput=="y" or tempInput=="yes":
     dissociativeTherapy=True
 
@@ -712,19 +714,21 @@ while script_running==True:
                     activity_durations[activity]=x
                 else:
                     x=1
-            elif dissociativeTherapy==True and timePassed-dissociative_therapy_snapshot > 259200 and stimulants<=2.5 and typical_antipsychotics<=0.5: # Some of the conditions exist to avoid medication interaction during treatment
+            elif dissociativeTherapy==True and timePassed-dissociativeTherapySnapshot > 259200 and stimulants<2.5 and typical_antipsychotics<0.5 and dissociatives<15: # Some of the conditions exist to avoid major medication interaction during treatment
                 activity="dissociative oral use"
                 reward = round(50*mood)
                 x = activity_durations[activity]
-                dissociative_therapy_snapshot=timePassed
-            elif stimulantTreatment==True and stimulants<=0 and sleep_needed<14400 and dissociatives<=15:
+                dissociativeTherapySnapshot=timePassed
+            elif stimulantTreatment==True and timePassed-stimulantTreatmentSnapshot > 57600 and sleep_needed<14400 and dissociatives<15 and stimulants<2.5:
                 activity="stimulant oral use"
                 reward = round(50*mood)
                 x = activity_durations[activity]
-            elif antipsychoticTreatment==True and typical_antipsychotics<=0 and dissociatives<=15:
+                stimulantTreatmentSnapshot=timePassed
+            elif antipsychoticTreatment==True and timePassed-antipsychoticTreatmentSnapshot > 57600 and dissociatives<15 and typical_antipsychotics<0.5:
                 activity="antipsychotic oral use"
                 reward = round(50*mood)
                 x = activity_durations[activity]
+                antipsychoticTreatmentSnapshot=timePassed
             else:
                 activity = "idle"
                 reward = round(50*mood)
@@ -791,7 +795,7 @@ while script_running==True:
 
         for i in list(medications_being_absorbed.keys()):
             if medications_being_absorbed[i]>0:
-                medications_being_absorbed[i]-=1
+                medications_being_absorbed[i]=round(medications_being_absorbed[i]-1)
                 for j in list(medication_total_dose.keys()):
                     if j in i:
                         if "stimulant" in i:
@@ -982,7 +986,7 @@ while script_running==True:
             dopamine_relative_activity=dopamine_relative_lower_cap
         
         if activity!="sleeping":
-            mood=max(0.1,round(mood + (min(2,relative)**3 - 1/max(0.1,mood*relative_recovery))*learning_rate, 6)) # Chronically low or high engagement levels affecting the mood
+            mood=max(0.1,round(mood + (min(3,relative)**3 - 1/max(0.5, mood * relative_recovery**3))*learning_rate, 6)) # Chronically low or high engagement levels affecting the mood
 
         if activity!="sleeping":
             sleep_needed=round(sleep_needed + 0.3 * relative**2, 2)
@@ -1052,7 +1056,7 @@ while script_running==True:
             print("Positively surprised!")
 
         if activity!="sleeping":
-            mood=max(0.1,round(mood + (min(2,reward/expectation)**3 - 1/max(0.1,mood*relative_recovery))*learning_rate, 6)) # Good and bad surprises slowly affecting the mood      
+            mood=max(0.1,round(mood + (min(3,reward/expectation)**3 - 1/max(0.5, mood * relative_recovery**3))*learning_rate, 6)) # Good and bad surprises slowly affecting the mood      
         if mood>1.5:
             mood=1.5
         elif mood<0.1:
