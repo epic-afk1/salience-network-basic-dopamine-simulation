@@ -803,7 +803,7 @@ while script_running==True:
                             
         previous_nmda_active_total = nmda_active_total
 
-        nmda_blocked=round(dissociatives/body_weight / (dissociatives/body_weight+1.5),4) * 100 # In percent, from 0 to 100, default = round(dissociatives/body_weight / (dissociatives/body_weight+1.5),4) * 100
+        nmda_blocked=round(dissociatives/body_weight / (dissociatives/body_weight+1.5),6) * 100 # In percent, from 0 to 100, default = round(dissociatives/body_weight / (dissociatives/body_weight+1.5),4) * 100
         if nmda_blocked<0:
             nmda_blocked=0
         nmda_active_total=nmda_active-nmda_blocked
@@ -815,20 +815,20 @@ while script_running==True:
 
         if nmda_active_total<100:
             if nmda_active>=nmda_cap and random.randint(1,86400)==1:
-                nmda_active=round(nmda_active+0.01,2)
+                nmda_active=round(nmda_active+0.01,6)
             elif nmda_active<nmda_cap:
-                nmda_active=round(nmda_active+0.1,2)
+                nmda_active=round(nmda_active+0.1,6)
         elif nmda_active_total>100:
-            nmda_active=round(nmda_active-0.1,2)
+            nmda_active=round(nmda_active-0.1,6)
 
-        relative_recovery = min(4,round(1 + max(0,nmda_active_total-previous_nmda_active_total) * max(0,100-nmda_active_total),2))
+        relative_recovery = min(4,round(1 + max(0,nmda_active_total-previous_nmda_active_total) * max(0,100-nmda_active_total),6))
 
         bmi = body_weight / (height/100)**2
 
         bmi_strain = (abs(bmi - 26)/25) ** 4
         stim_strain = stimulants**2 / 10000000
         antipsychotic_strain = typical_antipsychotics**3 / 5000000
-        nmda_deviation = abs(1 - (nmda_active_total / 100))**3
+        nmda_deviation = abs(1 - (nmda_active_total / 100))**4
         nmda_excitotoxicity = max(0, (nmda_active_total / 100)**2 - 1)
         sleep_deprivation_strain = sleep_deprivation_rate**3/1000000
 
@@ -906,6 +906,7 @@ while script_running==True:
             print("Dissociative amount: "+str(round(dissociatives,2))+"mg")
         
         relative=round(SN_DA*relativeDopaminePerception/usual_baseline,4)
+        learning_rate=min(0.95, round(SN_DA*0.0001*relativeDopaminePerception,4))
 
         if relative>1.1:
             dat_relative_activity=min(round(dat_relative_activity+0.000042,6),dat_relative_upper_cap)
@@ -949,6 +950,7 @@ while script_running==True:
         elif relative > 0.05:
             engagement_level="dull"
             body_weight = max(0, round(body_weight + 0.000001, 6)) # Apparently, a severe dopamine deficit can lead to an increase of appetite, and I want antipsychotics to not be "side-effect free" in this simulation
+            mood=max(0.1,round(mood - learning_rate, 6)) # Feeling dull is much easier to notice subjectively than any of the other mood states, so it adds to the mood along with the engagement-level dependant mood equation below
         else:
             engagement_level="frozen"
             if activity!="sleeping":
@@ -978,8 +980,6 @@ while script_running==True:
             dopamine_relative_activity=dopamine_relative_upper_cap
         elif dopamine_relative_activity<dopamine_relative_lower_cap:
             dopamine_relative_activity=dopamine_relative_lower_cap
-
-        learning_rate=round(SN_DA*0.0001*relativeDopaminePerception,4)
         
         if activity!="sleeping":
             mood=max(0.1,round(mood + (min(2,relative)**3 - 1/max(0.1,mood*relative_recovery))*learning_rate, 6)) # Chronically low or high engagement levels affecting the mood
@@ -1064,8 +1064,6 @@ while script_running==True:
             print("Risk of current psychotic episode: "+str(round(psychosisRisk,2))+"%")
             print("Dopamine firing rate: "+str(round(dopamine_relative_activity*100,2))+"%")
         
-        if learning_rate>0.95:
-            learning_rate=0.95
         learned_change=learning_rate*rpe
         if learned_change>50:
             learned_change=50
@@ -1121,18 +1119,18 @@ while script_running==True:
         if seconds==0 or speed_up==False or delusion!="idle" or hallucination!="idle":
             print("")
     else:
-        print("What do you want to do?")
+        print("What would you like to do?")
         print("Option 1: Toggle manual input")
         print("Option 2: Toggle details")
         print("Option 3: Show the on-going simulation")
         print("Option 4: Toggle maximum speed (manual input will be disabled and entries will only show once per minute)")
         print("Option 5: Show medication-related possible activities")
-        print("Option 6: Force a psychotic episode")
-        print("Option 7: Force a manic episode")
-        print("Option 8: Force a crash from a manic episode")
+        print("Option 6: Force an instant psychotic episode")
+        print("Option 7: Force an instant manic episode")
+        print("Option 8: Force an instant crash from a manic episode")
         print("Option 9: Medication reset")
         print("Option 10: End the script")
-        print("Any other number: Do nothing")
+        print("Option 11: Do nothing (along with any other option number)")
         
         errorResolved=False
         while errorResolved==False:
@@ -1182,6 +1180,7 @@ while script_running==True:
             dat_relative_activity=1.25
             tolerance=60
             acuteTolerance=60
+            mood=0.1
             sleep_needed=min(sleep_needed, 28800) # This line makes sure that severe sleep deprivation doesn't instantly switch a manic agent back to mania
             print("Forced a depressive crash from a manic episode!")
         elif optionChosen==9:
