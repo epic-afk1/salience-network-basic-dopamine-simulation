@@ -202,7 +202,7 @@ activity_pool = {
     "cooking a standard meal": 62, "chatting with a classmate": 68, "walking through a park": 72,
     "listening to a podcast": 58, "playing a casual mobile game": 64, "reading a comic book": 55,
     "organizing a wardrobe": 48, "buying a new t-shirt": 70, "drinking a glass of milk": 45,
-    "browsing an online store": 61, "watering household plants": 52, "taking a quick power nap": 66,
+    "browsing an online store": 61, "watering household plants": 52,
     "daydreaming about vacation": 59, "doodling on a notebook": 42, "checking the weather forecast": 44,
     "folding warm laundry": 46, "polishing a pair of shoes": 41, "watching the rain fall": 53,
     "drinking a warm cup of tea": 68, "re-reading an old message": 57, "singing in the shower": 63,
@@ -248,7 +248,7 @@ activity_durations = {
     "cooking a standard meal": 35, "chatting with a classmate": 18, "walking through a park": 45,
     "listening to a podcast": 50, "playing a casual mobile game": 25, "reading a comic book": 22,
     "organizing a wardrobe": 40, "buying a new t-shirt": 15, "drinking a glass of milk": 4,
-    "browsing an online store": 28, "watering household plants": 10, "taking a quick power nap": 60,
+    "browsing an online store": 28, "watering household plants": 10,
     "daydreaming about vacation": 12, "doodling on a notebook": 14, "checking the weather forecast": 3,
     "folding warm laundry": 20, "polishing a pair of shoes": 16, "watching the rain fall": 15,
     "drinking a warm cup of tea": 15, "re-reading an old message": 6, "singing in the shower": 10,
@@ -317,7 +317,6 @@ delusional_beliefs = {
     "drinking a glass of milk": "The liquid is thick because it contains heavy metal sedatives.",
     "browsing an online store": "The checkout button confirmed my physical execution address.",
     "watering household plants": "The damp soil is releasing spores that are filling my lungs right now.",
-    "taking a quick power nap": "They entered the room the moment I became unconscious.",
     "daydreaming about vacation": "My thoughts are being broadcast live to the monitors outside.",
     "doodling on a notebook": "The pattern I drew accidentally unlocked the failsafe on my oxygen supply.",
     "checking the weather forecast": "The barometric drop indicates a localized pressure weapon is firing.",
@@ -425,7 +424,6 @@ auditory_hallucinations = {
     "drinking a glass of milk": "It's not milk. Put it down.",
     "browsing an online store": "They just confirmed your address.",
     "watering household plants": "You are feeding the spores.",
-    "taking a quick power nap": "They are standing over your bed.",
     "daydreaming about vacation": "We can read your thoughts.",
     "doodling on a notebook": "You drew the target symbol.",
     "checking the weather forecast": "The sky is collapsing today.",
@@ -834,7 +832,7 @@ while script_running==True:
         antipsychotic_strain = typical_antipsychotics**3 / 5000000
         nmda_deviation = abs(1 - (nmda_active_total / 100))**4
         nmda_excitotoxicity = max(0, (nmda_active_total / 100)**2 - 1)
-        sleep_deprivation_strain = sleep_deprivation_rate**3/1000000
+        sleep_deprivation_strain = sleep_deprivation_rate**2/1000000
 
         deathChance = round(deathChance + (bmi_strain + stim_strain + antipsychotic_strain + nmda_deviation + nmda_excitotoxicity + sleep_deprivation_strain - 0.1)/20, 6)
         
@@ -989,7 +987,7 @@ while script_running==True:
             mood=max(0.1,round(mood + (min(3,relative)**3 - 1/max(0.5, mood * relative_recovery**3))*learning_rate, 6)) # Chronically low or high engagement levels affecting the mood
 
         if activity!="sleeping":
-            sleep_needed=round(sleep_needed + 0.3 * relative**2, 2)
+            sleep_needed=round(sleep_needed + min(1, 0.3 * relative), 2)
         else:
             sleep_needed=max(0, round(sleep_needed-1, 2))
         sleep_deprivation_rate=round(max(0, (sleep_needed-28800)/14400),2)
