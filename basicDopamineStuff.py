@@ -44,7 +44,7 @@ bmi = body_weight / (height/100)**2 # Default: body_weight / (height/100)**2
 nmda_active=100 # In percent, from 0 to 200, default = 100
 nmda_cap=100 # In percent, from 70 (for conditions like Schizophrenia to make NMDA hypofunction biologically forced) to 100, default = 100
 nmda_active_total=nmda_active
-mood_amplifier=1 # Not in use yet, but has potential for future use
+mood_amplifier=1 # Not in use yet, but has potential for future use, for presets specifically, not to be changed during the simulation
 learning_rate_amplifier=1
 
 manual_input=False
@@ -931,7 +931,7 @@ while script_running==True:
             print("Dissociative amount: "+str(round(dissociatives,2))+"mg")
         
         relative=round(SN_DA*relativeDopaminePerception/usual_baseline,4)
-        learning_rate=min(0.1, round(SN_DA*0.0001*relativeDopaminePerception*learning_rate_amplifier,4))
+        learning_rate=min(0.1, round(relative_recovery * SN_DA * 0.0001 * relativeDopaminePerception * learning_rate_amplifier,4))
 
         if relative>1.1:
             dat_relative_activity=min(round(dat_relative_activity+0.000042,6),dat_relative_upper_cap)
@@ -975,7 +975,7 @@ while script_running==True:
         elif relative > 0.1:
             engagement_level="dull"
             body_weight = max(0, round(body_weight + 0.000001, 6)) # Apparently, a severe dopamine deficit can lead to an increase of appetite, and I want antipsychotics to not be "side-effect free" in this simulation
-            mood=max(0.1,round(mood - learning_rate**3 * mood_amplifier/(relative * relative_recovery**3), 8)) # Feeling dull is much easier to notice subjectively than any of the other mood states, so it adds to the mood along with the engagement-level dependant mood equation below
+            mood=max(0.1,round(mood - learning_rate**3 * mood_amplifier/(relative * relative_recovery**4), 8)) # Feeling dull is much easier to notice subjectively than any of the other mood states, so it adds to the mood along with the engagement-level dependant mood equation below
         else: 
             engagement_level="frozen"
             if activity!="sleeping":
@@ -1007,7 +1007,7 @@ while script_running==True:
             dopamine_relative_activity=dopamine_relative_lower_cap
         
         if activity!="sleeping":
-            mood=max(0.1,round(mood + (min(3,relative)**2 - 1/max(0.5, relative_recovery**3)) * learning_rate**3 * mood_amplifier, 8)) # Chronically low or high engagement levels affecting the mood
+            mood=max(0.1,round(mood + (min(3,relative)**2 - 1/max(0.5, relative_recovery**4)) * learning_rate**3 * mood_amplifier, 8)) # Chronically low or high engagement levels affecting the mood
 
         if activity!="sleeping":
             sleep_needed=round(sleep_needed + min(1, 0.3 * relative), 2)
@@ -1025,7 +1025,7 @@ while script_running==True:
         hallucination="idle"
         if inMind=="idle" and activity!="sleeping":
             if relative>9 and random.randint(1, 100-shiftToAuditoryVoices)==1:
-                mood=max(0.1,round(mood - 10/(relative_recovery**3) * learning_rate**3 * mood_amplifier, 8)) # Quick, predictable drop in mood due to the distress of the experience
+                mood=max(0.1,round(mood - 2/(relative_recovery**4) * learning_rate**3 * mood_amplifier, 8)) # Quick, predictable drop in mood due to the distress of the experience
                 if nmda_cap>70 and random.randint(1,50)==1:
                     nmda_cap=round(nmda_cap-0.01*(sleep_deprivation_rate+1),2)
                 if activity != "idle" and activity in auditory_hallucinations:
@@ -1037,7 +1037,7 @@ while script_running==True:
             elif relative>8:
                 if random.randint(1,5)==1:
                     shiftToAuditoryVoices=min(98, round(shiftToAuditoryVoices+1))
-                mood=max(0.1,round(mood - 10/(relative_recovery**3) * learning_rate**3 * mood_amplifier, 8)) # Same as in the previous comment
+                mood=max(0.1,round(mood - 2/(relative_recovery**4) * learning_rate**3 * mood_amplifier, 8)) # Same as in the previous comment
                 if nmda_cap>70 and random.randint(1,75)==1:
                     nmda_cap=round(nmda_cap-0.01*(sleep_deprivation_rate+1),2)
                 if activity != "idle" and activity in delusional_beliefs:
@@ -1077,7 +1077,7 @@ while script_running==True:
             print("Positively surprised!")
 
         if activity!="sleeping":
-            mood=max(0.1,round(mood + (min(3,reward/expectation)**2 - 1/max(0.5, relative_recovery**3)) * learning_rate**3 * mood_amplifier, 8)) # Good and bad surprises slowly affecting the mood      
+            mood=max(0.1,round(mood + (min(3,reward/expectation)**2 - 1/max(0.5, relative_recovery**4)) * learning_rate**3 * mood_amplifier, 8)) # Good and bad surprises slowly affecting the mood      
         if mood>1.5:
             mood=1.5
         elif mood<0.1:
