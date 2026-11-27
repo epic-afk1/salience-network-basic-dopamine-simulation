@@ -846,7 +846,7 @@ while script_running==True:
         elif nmda_active_total>100:
             nmda_active=round(nmda_active-0.1,6)
 
-        relative_recovery = min(4,round(1 + max(0,nmda_active_total-previous_nmda_active_total) * max(0,100-nmda_active_total),6))
+        relative_recovery = min(2,round(1 + max(0,nmda_active_total-previous_nmda_active_total) * max(0,100-nmda_active_total),6))
 
         bmi = body_weight / (height/100)**2
 
@@ -1008,7 +1008,7 @@ while script_running==True:
             dopamine_relative_activity=dopamine_relative_lower_cap
         
         if activity!="sleeping":
-            mood=max(0.1,round(mood + (min(2, relative)**2 - 1/max(0.5, relative_recovery**2)) * learning_rate**2 * mood_amplifier, 6)) # Chronically low or high engagement levels affecting the mood
+            mood=max(0.1,round(mood + (min(2, relative) - 1/max(0.5, relative_recovery**2)) * learning_rate**2 * mood_amplifier, 6)) # Chronically low or high engagement levels affecting the mood
 
         if activity!="sleeping":
             sleep_needed=round(sleep_needed + min(1, 0.3 * relative), 2)
@@ -1077,8 +1077,8 @@ while script_running==True:
         elif reward/expectation>1.5 and (seconds==0 or speed_up==False) and reward>50:
             print("Positively surprised!")
 
-        if activity!="sleeping":
-            mood=max(0.1,round(mood + (min(3,reward/expectation) - 1/max(0.5, relative_recovery**2)) * learning_rate**2 * mood_amplifier, 6)) # Good and bad surprises slowly affecting the mood      
+        if activity!="sleeping" and ((reward>expectation and reward>50) or (reward<expectation and reward<50)):
+            mood=max(0.1,round(mood + (min(2,reward/expectation) - 1/max(0.5, relative_recovery**2)) * learning_rate**2 * mood_amplifier, 6)) # Good and bad surprises slowly affecting the mood      
         if mood>1.5:
             mood=1.5
         elif mood<0.1:
