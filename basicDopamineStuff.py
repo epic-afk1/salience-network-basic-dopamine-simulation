@@ -52,7 +52,7 @@ show_details=False
 speed_up=False
 
 medications_being_absorbed={}
-medication_total_dose={"stimulant_injection":20,"antipsychotic_injection":2,"dissociative_nasal":60,"stimulant_oral":5,"antipsychotic_oral":1,"dissociative_oral":30}
+medication_total_dose={"stimulant_injection":50,"antipsychotic_injection":2,"dissociative_nasal":80,"stimulant_oral":10,"antipsychotic_oral":1,"dissociative_oral":40}
 medication_total_duration={"stimulant_injection":60,"antipsychotic_injection":1800,"dissociative_nasal":1200,"stimulant_oral":7200,"antipsychotic_oral":14400,"dissociative_oral":3600}
 
 print("Active simulation: "+simulation.upper())
@@ -113,14 +113,14 @@ if simulation.lower()=="bipolar with adhd":
 if simulation.lower()=="schizoaffective disorder bipolar type":
     bipolar=True
     psychosisRisk=75
-    nmda_active=70
+    nmda_active=80
     nmda_cap=80
     shiftToAuditoryVoices=98
 
 elif simulation.lower()=="schizoaffective disorder bipolar type with adhd":
     bipolar=True
     psychosisRisk=75
-    nmda_active=70
+    nmda_active=80
     nmda_cap=80
     shiftToAuditoryVoices=98
     dat_relative_upper_cap=1.5
@@ -136,14 +136,14 @@ elif simulation.lower()=="bipolar depression":
 elif simulation.lower()=="schizophrenia":
     tolerance=-50
     psychosisRisk=75
-    nmda_active=70
+    nmda_active=80
     nmda_cap=80
     shiftToAuditoryVoices=98
     
 elif simulation.lower()=="schizotypal personality disorder":
     tolerance=-15
     psychosisRisk=25
-    nmda_active=90
+    nmda_active=95
     nmda_cap=95
     
 elif simulation.lower()=="adhd": # This profile simulates the High-DAT subgroup of ADHD
@@ -172,11 +172,11 @@ elif simulation.lower()=="bipolar inter-episode":
 elif simulation.lower()=="delusional disorder":
     tolerance=-30
     psychosisRisk=75
-    nmda_active=80
+    nmda_active=90
     nmda_cap=90
 
 elif simulation.lower()=="stimulant use disorder":
-    stimulants=100
+    stimulants=150
     tolerance=60
     dat_relative_activity=1.15
     dopamine_relative_activity=0.5
@@ -681,7 +681,8 @@ while script_running==True:
             x -= 1
         tonic_frequency=round(3 * dopamine_relative_activity)
         clearanceRate=min(0.99,(1-remainedAfterSecond)*dat_relative_activity)
-        SN_DA-= SN_DA * clearanceRate * ((1 - (stimulants / (10 + stimulants)))) # Technically amphetamine blocks reuptake AND causes a release, I tried to shorten the math to have it achieve similar values while only blocking reuptake
+        SN_DA-= SN_DA * clearanceRate * ((1 - (stimulants / (10 + stimulants)))) # Technically amphetamine blocks reuptake AND causes a release, I tried to shorten the math to have it achieve similar values while only blocking reuptake.
+        # According to my research, the amount of DAT transporters that actually start bumping in reverse are: (stimulants / (15 + stimulants)
         inMind="idle"
         randomrandint=random.randint(1,10)
         
@@ -846,7 +847,7 @@ while script_running==True:
         elif nmda_active_total>100:
             nmda_active=round(nmda_active-0.1,6)
 
-        relative_recovery = min(2,round(1 + max(0,nmda_active_total-previous_nmda_active_total) * max(0,100-nmda_active_total),6))
+        relative_recovery = min(1.5,round(1 + max(0,nmda_active_total-previous_nmda_active_total) * max(0,100-nmda_active_total),6))
 
         bmi = body_weight / (height/100)**2
 
@@ -982,7 +983,7 @@ while script_running==True:
                     activity="sleeping"
                     x=round(sleep_needed)
 
-        if (relative>1.2 and activity=="sleeping" and random.randint(1, round(max(2, 4-relative)))==1) or (activity=="sleeping" and sleep_needed < 5400 and random.randint(1,round(max(2, sleep_needed)))==1): # Simulating insomnia at high dopamine levels or when simply not being tired
+        if (relative>1.1 and activity=="sleeping" and random.randint(1, round(max(2, 10 - relative**2)))==1) or (activity=="sleeping" and sleep_needed < 5400 and random.randint(1,round(max(2, sleep_needed)))==1): # Simulating insomnia at elevated dopamine levels or when simply not being tired
             x=min(x, 5)
         
         if relative>1.1:
@@ -991,7 +992,7 @@ while script_running==True:
             dopamine_relative_activity=round(dopamine_relative_activity + min(1, 0.01*(1+sleep_deprivation_rate)) / max(dopamine_relative_lower_cap,dopamine_relative_activity),4) # Sleep deprivation apparently increases phasic dopamine firing
 
         if bipolar==True:  # DAT density getting out of control if dopamine levels escalate (too much or too little) in an individual with Bipolar Disorder
-            if relative>1.5:
+            if relative>1.2:
                 if random.randint(1,2)==1: # Uncontrolled increases in firing in people with Bipolar Disorder if dopamine levels overwhelm the salience network
                     dopamine_relative_activity=round(dopamine_relative_activity + relative*0.01,4)
                 if relative>1.8:
@@ -1005,7 +1006,7 @@ while script_running==True:
             dopamine_relative_activity=dopamine_relative_lower_cap
         
         if activity!="sleeping":
-            mood=max(0.1,round(mood + (min(1.2, relative**2) - 1/relative_recovery**2) * learning_rate**2 * mood_amplifier, 6)) # Chronically low or high engagement levels slightly affecting the mood
+            mood=max(0.1,round(mood + (min(1.2, relative**2) - 1/relative_recovery**3) * learning_rate**2 * mood_amplifier, 6)) # Chronically low or high engagement levels slightly affecting the mood
 
         if activity!="sleeping":
             sleep_needed=round(sleep_needed + min(1, 0.3 * relative), 2)
@@ -1028,7 +1029,7 @@ while script_running==True:
                 if activity != "idle" and activity in auditory_hallucinations:
                     hallucination=auditory_hallucinations[activity]
                     x=1
-                    rpe = min(0, rpe - 10/relative_recovery**2) # Planned: Having the AI have a mood-congruent reaction to the hallucination - the reason this is currently disabled is because of the content of present delusions to be consistently negative, otherwise: rpe + mood_congruent_drift + (1/relative_recovery**2 - 1)
+                    rpe = min(0, rpe - 10/relative_recovery**3) # Planned: Having the AI have a mood-congruent reaction to the hallucination - the reason this is currently disabled is because of the content of present delusions to be consistently negative, otherwise: rpe + mood_congruent_drift + (1/relative_recovery**2 - 1)
                 else:
                     hallucination=random.choice(idle_auditory_hallucinations)
                     x=1
@@ -1040,7 +1041,7 @@ while script_running==True:
                 if activity != "idle" and activity in delusional_beliefs:
                     delusion=delusional_beliefs[activity]
                     x=1
-                    rpe = min(0, rpe - 20/relative_recovery**2) # Same as previous comment, but with delusions, and even stronger conviction due to the mechanisms of a delusion, also potentially changing to: rpe + mood_congruent_drift*2 + (1/relative_recovery**2 - 1)
+                    rpe = min(0, rpe - 20/relative_recovery**3) # Same as previous comment, but with delusions, and even stronger conviction due to the mechanisms of a delusion, also potentially changing to: rpe + mood_congruent_drift*2 + (1/relative_recovery**2 - 1)
                 else:
                     delusion=random.choice(idle_delusional_beliefs)
                     x=1
@@ -1074,7 +1075,7 @@ while script_running==True:
             print("Positively surprised!")
 
         if activity!="sleeping" and ((reward>expectation and reward>50) or (reward<expectation and reward<50)):
-            mood=max(0.1,round(mood + (min(2,reward/expectation) - 1/max(0.5, relative_recovery**2)) * learning_rate**2 * mood_amplifier, 6)) # Good and bad surprises slowly affecting the mood      
+            mood=max(0.1,round(mood + (min(2,reward/expectation) - 1/max(0.5, relative_recovery**3)) * learning_rate**2 * mood_amplifier, 6)) # Good and bad surprises slowly affecting the mood      
         if mood>1.5:
             mood=1.5
         elif mood<0.1:
@@ -1096,29 +1097,29 @@ while script_running==True:
         if activity!="sleeping": # I want sleeping to be an activity that one knows is important for survival, regardless of how they liked it
             expectations[activity]=max(1,round(expectation+learned_change,2))      
             if stimulants>0 and "stimulant injection" in expectations: # This comes first in the if-elif section so if the agent has ever used a substance recreationally, it will prefer the "fast" route
-                expectations["stimulant injection"]=round(expectations["stimulant injection"] + learned_change * learning_rate * stimulants/(15 + stimulants),2) # An attempt at implementing addiction at higher doses, by making them think that they liked an activity more on them due to high engagement levels lifting the mood
+                expectations["stimulant injection"]=round(expectations["stimulant injection"] + (learned_change+mood_congruent_drift) * learning_rate * stimulants/(10 + stimulants), 2) # An attempt at implementing addiction at higher doses, by making them think that they liked an activity more on them due to high engagement levels lifting their mood
                 if expectations["stimulant injection"]<1:
                     expectations["stimulant injection"]=1
             elif stimulants>0 and "stimulant oral use" in expectations:
-                expectations["stimulant oral use"]=round(expectations["stimulant oral use"] + learned_change * learning_rate * stimulants/(15 + stimulants),2)
+                expectations["stimulant oral use"]=round(expectations["stimulant oral use"] + (learned_change+mood_congruent_drift) * learning_rate * stimulants/(10 + stimulants), 2)
                 if expectations["stimulant oral use"]<1:
                     expectations["stimulant oral use"]=1
 
             if typical_antipsychotics>0 and "antipsychotic injection" in expectations: # Now this will be here too so the AI updates its expectations on its antipsychotics depending on how much it is active right now, because the numbing effects can be unpleasant and affect moods
-                expectations["antipsychotic injection"]=round(expectations["antipsychotic injection"] + learned_change * learning_rate * (1 - 0.47 ** typical_antipsychotics),2) 
+                expectations["antipsychotic injection"]=round(expectations["antipsychotic injection"] + (learned_change+mood_congruent_drift) * learning_rate * (1 - 0.47 ** typical_antipsychotics), 2) 
                 if expectations["antipsychotic injection"]<1:
                     expectations["antipsychotic injection"]=1
             elif typical_antipsychotics>0 and "antipsychotic oral use" in expectations:
-                expectations["antipsychotic oral use"]=round(expectations["antipsychotic oral use"] + learned_change * learning_rate * (1 - 0.47 ** typical_antipsychotics),2)
+                expectations["antipsychotic oral use"]=round(expectations["antipsychotic oral use"] + (learned_change+mood_congruent_drift) * learning_rate * (1 - 0.47 ** typical_antipsychotics), 2)
                 if expectations["antipsychotic oral use"]<1:
                     expectations["antipsychotic oral use"]=1
 
             if dissociatives>0 and "dissociative nasal use" in expectations:
-                expectations["dissociative nasal use"]=round(expectations["dissociative nasal use"] + learned_change * learning_rate * relative_recovery,2) 
+                expectations["dissociative nasal use"]=round(expectations["dissociative nasal use"] + (learned_change+mood_congruent_drift) * learning_rate * relative_recovery**3, 2) 
                 if expectations["dissociative nasal use"]<1:
                     expectations["dissociative nasal use"]=1
             elif dissociatives>0 and "dissociative oral use" in expectations:
-                expectations["dissociative oral use"]=round(expectations["dissociative oral use"] + learned_change * learning_rate * relative_recovery,2)
+                expectations["dissociative oral use"]=round(expectations["dissociative oral use"] + (learned_change+mood_congruent_drift) * learning_rate * relative_recovery**3, 2)
                 if expectations["dissociative oral use"]<1:
                     expectations["dissociative oral use"]=1
             
