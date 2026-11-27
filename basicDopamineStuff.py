@@ -14,7 +14,7 @@ inMind="idle"
 highest_valued_activity="idle"
 print("Which simulation would you like to choose?")
 # Options: "default", "random", "Schizophrenia", "Schizoaffective Disorder Bipolar Type", "Schizotypal Personality Disorder", "ADHD", "Mania", "Major Depressive Disorder", "Bipolar Depression"
-simulation_list=["default", "random", "Schizophrenia", "Schizoaffective Disorder Bipolar Type", "Schizotypal Personality Disorder", "ADHD", "Mania", "Major Depressive Disorder", "Bipolar Depression", "Bipolar inter-episode", "Bipolar with ADHD", "Schizoaffective Disorder Bipolar Type with ADHD", "Delusional Disorder"]
+simulation_list=["default", "random", "Schizophrenia", "Schizoaffective Disorder Bipolar Type", "Schizotypal Personality Disorder", "ADHD", "Mania", "Major Depressive Disorder", "Bipolar Depression", "Bipolar inter-episode", "Bipolar with ADHD", "Schizoaffective Disorder Bipolar Type with ADHD", "Delusional Disorder", "Stimulant Use Disorder"]
 sleep_needed = 0 # In seconds, default: 28800 (8 hours)
 sleep_deprivation_rate = round(max(0, (sleep_needed-28800)/14400),2) # default: round(max(0, (sleep_needed-28800)/14400),2)
 
@@ -50,20 +50,37 @@ show_details=False
 speed_up=False
 
 medications_being_absorbed={}
-medications_absorption_value={"stimulant_oral":0.000694,"antipsychotic_oral":0.000069,"dissociative_oral":0.008333,"stimulant_injection":0.333333,"antipsychotic_injection":0.001111,"dissociative_nasal":0.05}
+medication_total_dose={"stimulant_injection":20,"antipsychotic_injection":2,"dissociative_nasal":60,"stimulant_oral":5,"antipsychotic_oral":1,"dissociative_oral":30}
+medication_total_duration={"stimulant_injection":60,"antipsychotic_injection":1800,"dissociative_nasal":1200,"stimulant_oral":7200,"antipsychotic_oral":14400,"dissociative_oral":3600}
 
 print("Active simulation: "+simulation.upper())
 print("")
 
 substancesInvolved=False
-substanceInput=input("Should the agent be able to discover certain substances by itself? (Y/N) ").lower().strip()
-if substanceInput=="y" or substanceInput=="yes":
+tempInput=input("Should the agent be able to discover certain substances by itself? (Y/N) ").lower().strip()
+if tempInput=="y" or tempInput=="yes":
     substancesInvolved=True
 
 canSleep=False
-sleepInput=input("Should the agent be able to sleep on its own without ever having manually done the activity 'sleeping'? (Y/N) ").lower().strip()
-if sleepInput=="y" or sleepInput=="yes":
+tempInput=input("Should the agent be able to sleep on its own without ever having manually done the activity 'sleeping'? (Y/N) ").lower().strip()
+if tempInput=="y" or tempInput=="yes":
     canSleep=True
+
+stimulantTreatment=False
+tempInput=input("Should the agent be getting stimulant treatment? (Y/N) ").lower().strip()
+if tempInput=="y" or tempInput=="yes":
+    stimulantTreatment=True
+
+antipsychoticTreatment=False
+tempInput=input("Should the agent be getting antipsychotic medication treatment? (Y/N) ").lower().strip()
+if tempInput=="y" or tempInput=="yes":
+    antipsychoticTreatment=True
+
+dissociativeTherapy=False
+dissociative_therapy_snapshot=0
+tempInput=input("Should the agent be involved in dissociative-assisted psychotherapy? (Y/N) ").lower().strip()
+if tempInput=="y" or tempInput=="yes":
+    dissociativeTherapy=True
 
 simulation=simulation.lower().strip()
 
@@ -142,6 +159,14 @@ elif simulation.lower()=="delusional disorder":
     psychosisRisk=75
     nmda_active=80
     nmda_cap=90
+
+elif simulation.lower()=="stimulant use disorder":
+    stimulants=100
+    tolerance=60
+    dat_relative_activity=1.15
+    dopamine_relative_activity=0.5
+    sleep_needed=57600
+    expectations["stimulant injection"]=150
 
 if bipolar==True: # In my simulation specifically, it is characterized by DAT malfunctioning, and uncontrolled increases in firing
     dopamine_relative_lower_cap=0.5
@@ -589,7 +614,6 @@ if psychosisRisk<0:
 elif psychosisRisk>95:
     psychosisRisk=95
 
-randomrandint=1
 script_running=True
 choosingOption=False
 deathChance=0
@@ -636,6 +660,8 @@ while script_running==True:
         clearanceRate=min(0.99,(1-remainedAfterSecond)*dat_relative_activity)
         SN_DA-= SN_DA * clearanceRate * ((1 - (stimulants / (10 + stimulants)))) # Technically amphetamine blocks reuptake AND causes a release, I tried to shorten the math to have it achieve similar values while only blocking reuptake
         inMind="idle"
+        randomrandint=random.randint(1,10)
+        
         if len(expectations)>0:
             highest_valued_activity=max(expectations,key=expectations.get)
             if expectations[highest_valued_activity]>50 and x==0 and randomrandint!=1 and highest_valued_activity!="idle":
@@ -643,7 +669,7 @@ while script_running==True:
                 if (seconds==0 or speed_up==False):
                     print("Currently thinking about: "+highest_valued_activity)
                 SN_DA+=0.1*expectations[highest_valued_activity]*dopamine_relative_activity
-        
+
         if x == 0:
             if (randomrandint==1 or manual_input==True) and engagement_level!="frozen":
                 if manual_input==False:
@@ -686,6 +712,19 @@ while script_running==True:
                     activity_durations[activity]=x
                 else:
                     x=1
+            elif dissociativeTherapy==True and timePassed-dissociative_therapy_snapshot > 259200 and stimulants<=2.5 and typical_antipsychotics<=0.5: # Some of the conditions exist to avoid medication interaction during treatment
+                activity="dissociative oral use"
+                reward = round(50*mood)
+                x = activity_durations[activity]
+                dissociative_therapy_snapshot=timePassed
+            elif stimulantTreatment==True and stimulants<=0 and sleep_needed<14400 and dissociatives<=15:
+                activity="stimulant oral use"
+                reward = round(50*mood)
+                x = activity_durations[activity]
+            elif antipsychoticTreatment==True and typical_antipsychotics<=0 and dissociatives<=15:
+                activity="antipsychotic oral use"
+                reward = round(50*mood)
+                x = activity_durations[activity]
             else:
                 activity = "idle"
                 reward = round(50*mood)
@@ -695,7 +734,7 @@ while script_running==True:
                     if abc<1:
                         abc=1
                     x=random.randint(0,abc)
-        randomrandint=random.randint(1,10)
+        
         stimulants=round(stimulants*0.999984,6)
         typical_antipsychotics=round(typical_antipsychotics*0.999991,6)
         dissociatives=round(dissociatives*0.999936,6)
@@ -708,7 +747,7 @@ while script_running==True:
                     j+=1
                     if "stimulant_injection_"+str(j) not in list(medications_being_absorbed.keys()):
                        addedToAbsorptionList=True
-                       medications_being_absorbed["stimulant_injection_"+str(j)]=60
+                       medications_being_absorbed["stimulant_injection_"+str(j)]=medication_total_duration["stimulant_injection"]
             elif activity=="antipsychotic injection":
                 addedToAbsorptionList=False
                 j=0
@@ -716,7 +755,7 @@ while script_running==True:
                     j+=1
                     if "antipsychotic_injection_"+str(j) not in list(medications_being_absorbed.keys()):
                        addedToAbsorptionList=True
-                       medications_being_absorbed["antipsychotic_injection_"+str(j)]=1800
+                       medications_being_absorbed["antipsychotic_injection_"+str(j)]=medication_total_duration["antipsychotic_injection"]
             elif activity=="dissociative nasal use":
                 addedToAbsorptionList=False
                 j=0
@@ -724,7 +763,7 @@ while script_running==True:
                     j+=1
                     if "dissociative_nasal_"+str(j) not in list(medications_being_absorbed.keys()):
                        addedToAbsorptionList=True
-                       medications_being_absorbed["dissociative_nasal_"+str(j)]=1200
+                       medications_being_absorbed["dissociative_nasal_"+str(j)]=medication_total_duration["dissociative_nasal"]
             elif activity=="stimulant oral use":
                 addedToAbsorptionList=False
                 j=0
@@ -732,7 +771,7 @@ while script_running==True:
                     j+=1
                     if "stimulant_oral_"+str(j) not in list(medications_being_absorbed.keys()):
                        addedToAbsorptionList=True
-                       medications_being_absorbed["stimulant_oral_"+str(j)]=7200
+                       medications_being_absorbed["stimulant_oral_"+str(j)]=medication_total_duration["stimulant_oral"]
             elif activity=="antipsychotic oral use":
                 addedToAbsorptionList=False
                 j=0
@@ -740,7 +779,7 @@ while script_running==True:
                     j+=1
                     if "antipsychotic_oral_"+str(j) not in list(medications_being_absorbed.keys()):
                        addedToAbsorptionList=True
-                       medications_being_absorbed["antipsychotic_oral_"+str(j)]=14400
+                       medications_being_absorbed["antipsychotic_oral_"+str(j)]=medication_total_duration["antipsychotic_oral"]
             elif activity=="dissociative oral use":
                 addedToAbsorptionList=False
                 j=0
@@ -748,19 +787,19 @@ while script_running==True:
                     j+=1
                     if "dissociative_oral_"+str(j) not in list(medications_being_absorbed.keys()):
                        addedToAbsorptionList=True
-                       medications_being_absorbed["dissociative_oral_"+str(j)]=3600
+                       medications_being_absorbed["dissociative_oral_"+str(j)]=medication_total_duration["dissociative_oral"]
 
         for i in list(medications_being_absorbed.keys()):
             if medications_being_absorbed[i]>0:
                 medications_being_absorbed[i]-=1
-                for j in list(medications_absorption_value.keys()):
+                for j in list(medication_total_dose.keys()):
                     if j in i:
                         if "stimulant" in i:
-                            stimulants+=medications_absorption_value[j]
+                            stimulants+=round(medication_total_dose[j]/medication_total_duration[j],6)
                         elif "antipsychotic" in i:
-                            typical_antipsychotics+=medications_absorption_value[j]
+                            typical_antipsychotics+=round(medication_total_dose[j]/medication_total_duration[j],6)
                         elif "dissociative" in i:
-                            dissociatives+=medications_absorption_value[j]
+                            dissociatives+=round(medication_total_dose[j]/medication_total_duration[j],6)
                             
         previous_nmda_active_total = nmda_active_total
 
@@ -787,13 +826,13 @@ while script_running==True:
         bmi = body_weight / (height/100)**2
 
         bmi_strain = (abs(bmi - 26)/25) ** 4
-        stim_strain = stimulants**3 / 10000000
+        stim_strain = stimulants**2 / 10000000
         antipsychotic_strain = typical_antipsychotics**3 / 5000000
         nmda_deviation = abs(1 - (nmda_active_total / 100))**3
         nmda_excitotoxicity = max(0, (nmda_active_total / 100)**2 - 1)
         sleep_deprivation_strain = sleep_deprivation_rate**3/1000000
 
-        deathChance = round(deathChance + (bmi_strain + stim_strain + antipsychotic_strain + nmda_deviation + nmda_excitotoxicity + sleep_deprivation_strain - 0.1)/20, 3)
+        deathChance = round(deathChance + (bmi_strain + stim_strain + antipsychotic_strain + nmda_deviation + nmda_excitotoxicity + sleep_deprivation_strain - 0.1)/20, 6)
         
         if deathChance>99:
             deathChance=99
@@ -939,9 +978,11 @@ while script_running==True:
             dopamine_relative_activity=dopamine_relative_upper_cap
         elif dopamine_relative_activity<dopamine_relative_lower_cap:
             dopamine_relative_activity=dopamine_relative_lower_cap
+
+        learning_rate=round(SN_DA*0.0001*relativeDopaminePerception,4)
         
         if activity!="sleeping":
-            mood=max(0.1,round(mood + (min(2,relative)**3 - 1)*relative_recovery*0.001/max(0.1,mood), 6)) # Something being engaging on its own might slightly lift up someone's mood, also with sleep_deprivation_rate removed here to make mood swings when sleep deprived more apparent than the mood consistently sinking
+            mood=max(0.1,round(mood + (min(2,relative)**3 - 1/max(0.1,mood*relative_recovery))*learning_rate, 6)) # Chronically low or high engagement levels affecting the mood
 
         if activity!="sleeping":
             sleep_needed=round(sleep_needed + 0.3 * relative**2, 2)
@@ -959,7 +1000,7 @@ while script_running==True:
         hallucination="idle"
         if inMind=="idle" and activity!="sleeping":
             if relative>9 and random.randint(1, 100-shiftToAuditoryVoices)==1:
-                mood=max(0.1,round(mood - (min(2,relative)**3 - (1 + sleep_deprivation_rate))*relative_recovery*0.001/max(0.1,mood), 6))
+                mood=max(0.1,round(mood - 10*learning_rate, 6))
                 if nmda_cap>70 and random.randint(1,50)==1:
                     nmda_cap=round(nmda_cap-0.01*(sleep_deprivation_rate+1),2)
                 if activity != "idle" and activity in auditory_hallucinations:
@@ -971,7 +1012,7 @@ while script_running==True:
             elif relative>8:
                 if random.randint(1,5)==1:
                     shiftToAuditoryVoices=min(98, round(shiftToAuditoryVoices+1))
-                mood=max(0.1,round(mood - (min(2,relative)**3 - (1 + sleep_deprivation_rate))*relative_recovery*0.001/max(0.1,mood), 6)) # Despite the engagement lifting up the mood, an experience this distressing can quickly turn things around
+                mood=max(0.1,round(mood - 10*learning_rate, 6)) # Quick, predictable drop in mood due to the distress of the experience
                 if nmda_cap>70 and random.randint(1,75)==1:
                     nmda_cap=round(nmda_cap-0.01*(sleep_deprivation_rate+1),2)
                 if activity != "idle" and activity in delusional_beliefs:
@@ -1011,8 +1052,7 @@ while script_running==True:
             print("Positively surprised!")
 
         if activity!="sleeping":
-            mood = max(0.1,round(mood + ((reward/expectation)**3 - (1 + sleep_deprivation_rate))*relative_recovery*0.0001/max(0.1,mood),6)) # Good and bad surprises affecting the mood, but with a low multiplier to avoid rapid stacking during a long activity
-        
+            mood=max(0.1,round(mood + (min(2,reward/expectation)**3 - 1/max(0.1,mood*relative_recovery))*learning_rate, 6)) # Good and bad surprises slowly affecting the mood      
         if mood>1.5:
             mood=1.5
         elif mood<0.1:
@@ -1023,7 +1063,7 @@ while script_running==True:
             print("Mood: "+str(round(mood*100,2))+"%")
             print("Risk of current psychotic episode: "+str(round(psychosisRisk,2))+"%")
             print("Dopamine firing rate: "+str(round(dopamine_relative_activity*100,2))+"%")
-        learning_rate=round(SN_DA*0.0001*relativeDopaminePerception,4)
+        
         if learning_rate>0.95:
             learning_rate=0.95
         learned_change=learning_rate*rpe
