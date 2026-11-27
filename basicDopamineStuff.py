@@ -89,6 +89,12 @@ tempInput=input("Should the agent be invincible? (Y/N) ").lower().strip()
 if tempInput=="y" or tempInput=="yes":
     invincible=True
 
+agentName=input("Give your agent a name: ").strip().title()
+defaultNames=["Michael", "John", "James", "David", "Robert", "William", "Mary", "Maria", "Daniel", "Joseph"]
+
+if agentName=="":
+    agentName=random.choice(defaultNames)
+
 simulation=simulation.lower().strip()
 
 if simulation=="random":
@@ -600,17 +606,23 @@ idle_auditory_hallucinations = [
     "They just crossed the doorway.",
     "You were left behind.",
     "The signal was sent. It's over.",
-    "Run while you still can."
+    "Run while you still can.",
+    agentName+"!",
+    "We all hate "+agentName+"."
 ]
 
-if substancesInvolved==True:
+expectations["sleeping"]=round(sleep_deprivation_rate**2 * mood)
+for i in random.sample(list(activity_pool.keys()), 25): # Creates up to 25 random expectations so the agent doesn't "spawn" with zero knowledge
+    if i not in expectations and len(list(expectations.keys()))<25:
+        expectations[i]=activity_pool[i]*mood
+        activity_history.append(i)
+
+if substancesInvolved==True: # Moved under the expectation generation section so the agent doesn't start with substances in its activity history
     activity_pool["stimulant injection"]=50
     activity_pool["dissociative nasal use"]=50
 
 if canSleep==True:
-    activity_pool["sleeping"]=50
-
-expectations["sleeping"]=round(sleep_deprivation_rate**2 * mood)
+    activity_pool["sleeping"]=50   
 
 x = 0
 
@@ -658,6 +670,9 @@ while script_running==True:
         if speed_up==False:
             time.sleep(1)
         timePassed = round(timePassed + 1)
+
+        if show_details==True and (seconds==0 or speed_up==False):
+            print("Name: "+agentName)
         
         if x > 0:
             x -= 1
@@ -846,9 +861,9 @@ while script_running==True:
         elif deathChance<0:
             deathChance=0
         
-        if random.randint(round(deathChance/10), 1000) == random.randint(round(deathChance/10), 1000) and deathChance>random.randint(15,85) and invincible==False:
+        if invincible==False and random.randint(round(deathChance/10), 1000) == random.randint(round(deathChance/10), 1000) and deathChance>random.randint(15,85):
             script_running=False
-            sys.stderr.write("THE AGENT DIED. SCRIPT ENDING.\n")
+            sys.stderr.write(agentName.upper()+" DIED. SCRIPT ENDING.\n")
             break
         
         
@@ -958,7 +973,7 @@ while script_running==True:
         elif relative > 0.1:
             engagement_level="dull"
             body_weight = max(0, round(body_weight + 0.000001, 6)) # Apparently, a severe dopamine deficit can lead to an increase of appetite, and I want antipsychotics to not be "side-effect free" in this simulation
-            mood=max(0.1,round(mood - learning_rate**2/relative, 6)) # Feeling dull is much easier to notice subjectively than any of the other mood states, so it adds to the mood along with the engagement-level dependant mood equation below
+            mood=max(0.1,round(mood - learning_rate**2/(relative * relative_recovery**3), 6)) # Feeling dull is much easier to notice subjectively than any of the other mood states, so it adds to the mood along with the engagement-level dependant mood equation below
         else: 
             engagement_level="frozen"
             if activity!="sleeping":
@@ -1008,7 +1023,7 @@ while script_running==True:
         hallucination="idle"
         if inMind=="idle" and activity!="sleeping":
             if relative>9 and random.randint(1, 100-shiftToAuditoryVoices)==1:
-                mood=max(0.1,round(mood - 10 * learning_rate**2, 6)) # Quick, predictable drop in mood due to the distress of the experience
+                mood=max(0.1,round(mood - 10/(relative_recovery**3) * learning_rate**2, 6)) # Quick, predictable drop in mood due to the distress of the experience
                 if nmda_cap>70 and random.randint(1,50)==1:
                     nmda_cap=round(nmda_cap-0.01*(sleep_deprivation_rate+1),2)
                 if activity != "idle" and activity in auditory_hallucinations:
@@ -1020,7 +1035,7 @@ while script_running==True:
             elif relative>8:
                 if random.randint(1,5)==1:
                     shiftToAuditoryVoices=min(98, round(shiftToAuditoryVoices+1))
-                mood=max(0.1,round(mood - 10 * learning_rate**2, 6)) # Same as in the previous comment
+                mood=max(0.1,round(mood - 10/(relative_recovery**3) * learning_rate**2, 6)) # Same as in the previous comment
                 if nmda_cap>70 and random.randint(1,75)==1:
                     nmda_cap=round(nmda_cap-0.01*(sleep_deprivation_rate+1),2)
                 if activity != "idle" and activity in delusional_beliefs:
@@ -1082,29 +1097,29 @@ while script_running==True:
             expectations[activity]=max(1,round(expectation+learned_change,2))      
         
         if stimulants>0 and "stimulant injection" in expectations: # This comes first in the if-elif section so if the agent has ever used a substance recreationally, it will prefer the "fast" route
-            expectations["stimulant injection"]=round(expectations["stimulant injection"]+learned_change*round(stimulants / (15 + stimulants),2),2) # An attempt at implementing addiction at higher doses, by making them think that they liked an activity more on them due to high engagement levels lifting the mood
+            expectations["stimulant injection"]=round(expectations["stimulant injection"] + learned_change * mood * learning_rate * stimulants/(15 + stimulants),2) # An attempt at implementing addiction at higher doses, by making them think that they liked an activity more on them due to high engagement levels lifting the mood
             if expectations["stimulant injection"]<1:
                 expectations["stimulant injection"]=1
         elif stimulants>0 and "stimulant oral use" in expectations:
-            expectations["stimulant oral use"]=round(expectations["stimulant oral use"]+learned_change*round(stimulants / (15 + stimulants),2),2)
+            expectations["stimulant oral use"]=round(expectations["stimulant oral use"] + learned_change * mood * learning_rate * stimulants/(15 + stimulants),2)
             if expectations["stimulant oral use"]<1:
                 expectations["stimulant oral use"]=1
 
         if typical_antipsychotics>0 and "antipsychotic injection" in expectations: # Now this will be here too so the AI updates its expectations on its antipsychotics depending on how much it is active right now, because the numbing effects can be unpleasant and affect moods
-            expectations["antipsychotic injection"]=round(expectations["antipsychotic injection"]+learned_change*round(1 - 0.47 ** typical_antipsychotics,2),2) 
+            expectations["antipsychotic injection"]=round(expectations["antipsychotic injection"] + learned_change * mood * learning_rate * (1 - 0.47 ** typical_antipsychotics),2) 
             if expectations["antipsychotic injection"]<1:
                 expectations["antipsychotic injection"]=1
         elif typical_antipsychotics>0 and "antipsychotic oral use" in expectations:
-            expectations["antipsychotic oral use"]=round(expectations["antipsychotic oral use"]+learned_change*round(1 - 0.47 ** typical_antipsychotics,2),2)
+            expectations["antipsychotic oral use"]=round(expectations["antipsychotic oral use"] + learned_change * mood * learning_rate * (1 - 0.47 ** typical_antipsychotics),2)
             if expectations["antipsychotic oral use"]<1:
                 expectations["antipsychotic oral use"]=1
 
         if dissociatives>0 and "dissociative nasal use" in expectations:
-            expectations["dissociative nasal use"]=round(expectations["dissociative nasal use"]+learned_change*0.1*relative_recovery,2) 
+            expectations["dissociative nasal use"]=round(expectations["dissociative nasal use"] + learned_change * mood * learning_rate * relative_recovery,2) 
             if expectations["dissociative nasal use"]<1:
                 expectations["dissociative nasal use"]=1
         elif dissociatives>0 and "dissociative oral use" in expectations:
-            expectations["dissociative oral use"]=round(expectations["dissociative oral use"]+learned_change*0.1*relative_recovery,2)
+            expectations["dissociative oral use"]=round(expectations["dissociative oral use"] + learned_change * mood * learning_rate * relative_recovery,2)
             if expectations["dissociative oral use"]<1:
                 expectations["dissociative oral use"]=1
             
@@ -1131,7 +1146,7 @@ while script_running==True:
         print("Option 1: Toggle manual input")
         print("Option 2: Toggle details")
         print("Option 3: Show the on-going simulation")
-        print("Option 4: Toggle maximum speed (manual input will be disabled and entries will only show once per minute)")
+        print("Option 4: Toggle maximum speed (additionally, manual input will be disabled and entries will only show once per minute)")
         print("Option 5: Show medication-related possible activities")
         print("Option 6: Force an instant psychotic episode")
         print("Option 7: Force an instant manic episode")
