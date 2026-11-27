@@ -935,9 +935,9 @@ while script_running==True:
         learning_rate=min(0.1, round(relative_recovery * SN_DA * 0.0001 * relativeDopaminePerception * learning_rate_amplifier,4))
 
         if relative>1.1:
-            dat_relative_activity=min(round(dat_relative_activity+0.00005*max(2,relative),6),dat_relative_upper_cap)
+            dat_relative_activity=min(round(dat_relative_activity+0.00005*min(2,relative),6),dat_relative_upper_cap)
         elif relative<=0.9:
-            dat_relative_activity=max(round(dat_relative_activity-0.00005/min(0.5,relative),6),dat_relative_lower_cap)
+            dat_relative_activity=max(round(dat_relative_activity-0.00005/max(0.5,relative),6),dat_relative_lower_cap)
                 
         
         if relative>1.1 and acuteTolerance<60 and (relative>1.5 or bipolar==False): # Receptor downregulation and upregulation are often delayed in individuals with Bipolar Disorder
@@ -978,11 +978,11 @@ while script_running==True:
             engagement_level="frozen"
             if activity!="sleeping":
                 x=0
-                if random.randint(1,10)==1: # Very low dopamine levels leading to a shift to sedation
+                if random.randint(1,max(2, round(10*relative)))==1: # Very low dopamine levels leading to a shift to sedation
                     activity="sleeping"
                     x=round(sleep_needed)
 
-        if (relative>1.3 and activity=="sleeping" and random.randint(1, round(12-relative))==1) or (activity=="sleeping" and sleep_needed < 5400 and random.randint(1,round(max(2, sleep_needed)))==1): # Simulating insomnia at high dopamine levels or when simply not being tired
+        if (relative>1.2 and activity=="sleeping" and random.randint(1, round(max(2, 4-relative)))==1) or (activity=="sleeping" and sleep_needed < 5400 and random.randint(1,round(max(2, sleep_needed)))==1): # Simulating insomnia at high dopamine levels or when simply not being tired
             x=min(x, 5)
         
         if relative>1.1:
@@ -994,9 +994,9 @@ while script_running==True:
             if relative>1.5:
                 if random.randint(1,2)==1: # Uncontrolled increases in firing in people with Bipolar Disorder if dopamine levels overwhelm the salience network
                     dopamine_relative_activity=round(dopamine_relative_activity + relative*0.01,4)
-                if relative>1.7:
+                if relative>1.8:
                     dat_relative_activity=max(round(dat_relative_activity - 0.0002*relative,6),dat_relative_lower_cap)
-            elif relative<=0.7:
+            elif relative<=0.8:
                 dat_relative_activity=min(round(dat_relative_activity + 0.0002/relative,6),dat_relative_upper_cap) 
                 
         if dopamine_relative_activity>dopamine_relative_upper_cap:
