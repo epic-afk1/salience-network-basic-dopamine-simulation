@@ -44,6 +44,7 @@ bmi = body_weight / (height/100)**2 # Default: body_weight / (height/100)**2
 nmda_active=100 # In percent, from 0 to 200, default = 100
 nmda_cap=100 # In percent, from 70 (for conditions like Schizophrenia to make NMDA hypofunction biologically forced) to 100, default = 100
 nmda_active_total=nmda_active
+relative_recovery=1
 mood_amplifier=1 # Not in use yet, but has potential for future use, for presets specifically, not to be changed during the simulation
 learning_rate_amplifier=1
 
@@ -1124,14 +1125,17 @@ while script_running==True:
             nmda_active_total=200
 
         if nmda_active_total<100:
-            if nmda_active>=nmda_cap and random.randint(1,86400)==1:
+            if nmda_active>=nmda_cap and random.randint(1,3600)==1:
                 nmda_active=round(nmda_active+0.01,6)
             elif nmda_active<nmda_cap:
                 nmda_active=round(nmda_active+0.1,6)
         elif nmda_active_total>100:
             nmda_active=round(nmda_active-0.1,6)
 
-        relative_recovery = min(1.5,round(1 + max(0,nmda_active_total-previous_nmda_active_total) * max(0,100-nmda_active_total),6))
+        tempValue=relative_recovery
+        relative_recovery = max(relative_recovery, min(1.5,round(1 + max(0,nmda_active_total-previous_nmda_active_total) * max(0,100-nmda_active_total),6)))
+        if tempValue==relative_recovery:
+            relative_recovery=max(1, round(relative_recovery-0.000001, 6))
         bmi = body_weight / (height/100)**2
         
         if activity=="idle" and inMind=="idle":
@@ -1317,7 +1321,7 @@ while script_running==True:
         sleep_deprivation_rate=round(max(0, (sleep_needed-28800)/14400),2)
         expectations["sleeping"]=max(1, round(sleep_deprivation_rate**2 + mood_congruent_drift))
         
-        psychosisRisk+=random.randint(round(relative-20), round(sleep_deprivation_rate + relative**2 * abs(100-nmda_active_total))) # Stressors and currently existing aberrant salience episodes can make future aberrant salience more likely, from my point of knowledge
+        psychosisRisk+=random.randint(round(relative-30), round(sleep_deprivation_rate + relative**2 * abs(100-nmda_active_total))) # Stressors and currently existing aberrant salience episodes can make future aberrant salience more likely, from my point of knowledge
         if psychosisRisk<0:
             psychosisRisk=0
         elif psychosisRisk>95:
@@ -1330,8 +1334,10 @@ while script_running==True:
             last_hallucinations.pop(0)
         if inMind=="idle" and activity!="sleeping":
             if relative>9 and random.randint(1, 100-shiftToAuditoryVoices)==1:
-                if nmda_cap>70 and random.randint(1,50)==1:
+                if nmda_cap>70 and random.randint(1,800)==1:
                     nmda_cap=round(nmda_cap-0.01*(sleep_deprivation_rate+1),2)
+                    if nmda_active>nmda_cap:
+                        nmda_active=round(nmda_cap-0.01*(sleep_deprivation_rate+1),2)
                 rpe = rpe + mood_congruent_drift + (1/relative_recovery**4 - 1) # Having the AI have a reaction to the hallucination with a mood-congruent bias
                 if rpe>0 or (rpe==0 and mood>1):
                     if activity != "idle" and activity in positive_auditory_hallucinations and positive_auditory_hallucinations[activity] not in last_hallucinations:
@@ -1348,8 +1354,10 @@ while script_running==True:
             elif relative>8:
                 if random.randint(1,5)==1:
                     shiftToAuditoryVoices=min(98, round(shiftToAuditoryVoices+1))
-                if nmda_cap>70 and random.randint(1,75)==1:
+                if nmda_cap>70 and random.randint(1,1600)==1:
                     nmda_cap=round(nmda_cap-0.01*(sleep_deprivation_rate+1),2)
+                    if nmda_active>nmda_cap:
+                        nmda_active=round(nmda_cap-0.01*(sleep_deprivation_rate+1),2)
                 rpe = rpe + mood_congruent_drift*2 + (1/relative_recovery**4 - 1) # Same as previous comment, but with delusions, and even stronger conviction due to the mechanisms of a delusion
                 if rpe>0 or (rpe==0 and mood>1):
                     if activity != "idle" and activity in positive_delusional_beliefs and positive_delusional_beliefs[activity] not in last_delusions:
