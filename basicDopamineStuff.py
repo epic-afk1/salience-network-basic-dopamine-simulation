@@ -1132,47 +1132,7 @@ while script_running==True:
             nmda_active=round(nmda_active-0.1,6)
 
         relative_recovery = min(1.5,round(1 + max(0,nmda_active_total-previous_nmda_active_total) * max(0,100-nmda_active_total),6))
-
         bmi = body_weight / (height/100)**2
-
-        bmi_strain = (abs(bmi - 26)/25) ** 4
-        stim_strain = stimulants**3 / 100000000
-        antipsychotic_strain = typical_antipsychotics**3 / 5000000
-        nmda_deviation = abs(1 - (nmda_active_total / 100))**4
-        nmda_excitotoxicity = max(0, (nmda_active_total / 100)**2 - 1)
-        sleep_deprivation_strain = sleep_deprivation_rate**3/1000000
-
-        deathChance = round(deathChance + (bmi_strain + stim_strain + antipsychotic_strain + nmda_deviation + nmda_excitotoxicity + sleep_deprivation_strain - 0.1)/25, 6)
-        
-        if deathChance>99:
-            deathChance=99
-        elif deathChance<0:
-            deathChance=0
-        
-        if invincible==False and random.randint(round(deathChance/10), 1000) == random.randint(round(deathChance/10), 1000) and deathChance>random.randint(15,85):
-            script_running=False
-            sys.stderr.write(agentName.upper()+" DIED.\n")
-            print("")
-            print("Detailed death-related stats:")
-            print("")
-            print("BMI-related additive strain: "+str(round(bmi_strain/25, 4))+"% per second")
-            print("Stimulant-related additive strain: "+str(round(stim_strain/25, 4))+"% per second")
-            print("Antipsychotic-related additive strain: "+str(round(antipsychotic_strain/25, 4))+"% per second")
-            print("Additive strain due to NMDA-deviation: "+str(round(nmda_deviation/25, 4))+"% per second")
-            print("Additive strain due to NMDA-excitotoxicity: "+str(round(nmda_excitotoxicity/25, 4))+"% per second")
-            print("Additive strain due to sleep deprivation: "+str(round(sleep_deprivation_strain/25, 4))+"% per second")
-            print("Recovery from all the strain: 0.004% per second")
-            print("Final death chance: "+str(round(deathChance, 4))+"%")
-            print("")
-            print("Stimulant amount: "+str(round(stimulants, 4))+"mg")
-            print("Antipsychotic amount: "+str(round(typical_antipsychotics, 4))+"mg")
-            print("Dissociative amount: "+str(round(dissociatives, 4))+"mg")
-            print("Sleep deprivation rate: "+str(round(sleep_deprivation_rate, 4)))
-            print("NMDA receptors active: "+str(round(nmda_active_total, 4))+"%")
-            print("Body weight: "+str(round(body_weight,4))+"kg")
-            print("")
-            sys.stderr.write("SCRIPT ENDING.\n")
-            break
         
         if activity=="idle" and inMind=="idle":
             reward = max(1,round(50+mood_congruent_drift))
@@ -1228,8 +1188,6 @@ while script_running==True:
                 sleep_deprived=False
             print("Has Bipolar Disorder: "+str(bipolar))
             print("Sleep deprived: "+str(sleep_deprived))
-            if invincible==False:
-                print("Death chance: "+str(round(deathChance,2))+"%")
             print("DA levels in the SN: " +str(SN_DA))
             print("Stimulant amount: "+str(round(stimulants,2))+"mg")
             print("Antipsychotic amount: "+str(round(typical_antipsychotics,2))+"mg")
@@ -1288,6 +1246,47 @@ while script_running==True:
 
         if (relative**3/(sleep_deprivation_rate + 0.8) > 1 and activity=="sleeping" and random.randint(1, round(max(2, 10 - relative**3/(sleep_deprivation_rate + 0.8))))==1) or (activity=="sleeping" and sleep_needed < 5400 and random.randint(1,round(max(2, sleep_needed)))==1): # Simulating insomnia at elevated dopamine levels or when simply not being tired
             x=min(x, 5)
+  
+        bmi_strain = (abs(bmi - 26)/25) ** 4
+        stim_strain = stimulants**3 / 640000000
+        antipsychotic_strain = typical_antipsychotics**3 / 5000000
+        nmda_deviation = abs(1 - (nmda_active_total / 100))**4
+        nmda_excitotoxicity = max(0, (nmda_active_total / 100)**2 - 1)
+        sleep_deprivation_strain = sleep_deprivation_rate**3 / 1000000
+        strain_recovery = max(0.05, 0.1 / max(0.5, sleep_deprivation_rate + relative**0.25)) # Recovery depending on how much the agent is "resting" right now, which is indirectly defined using relative here, and how much slower the body is at recovering due to sleep deprivation
+
+        deathChance = round(deathChance + (bmi_strain + stim_strain + antipsychotic_strain + nmda_deviation + nmda_excitotoxicity + sleep_deprivation_strain - strain_recovery)/50, 6)
+        
+        if deathChance>99:
+            deathChance=99
+        elif deathChance<0:
+            deathChance=0
+        
+        if invincible==False and random.randint(round(deathChance/10), 1000) == random.randint(round(deathChance/10), 1000) and deathChance>random.randint(15,85):
+            script_running=False
+            sys.stderr.write(agentName.upper()+" DIED.\n")
+            print("")
+            print("Detailed death-related stats:")
+            print("")
+            print("BMI-related additive strain: "+str(round(bmi_strain/50, 4))+"% per second")
+            print("Stimulant-related additive strain: "+str(round(stim_strain/50, 4))+"% per second")
+            print("Antipsychotic-related additive strain: "+str(round(antipsychotic_strain/50, 4))+"% per second")
+            print("Additive strain due to NMDA-deviation: "+str(round(nmda_deviation/50, 4))+"% per second")
+            print("Additive strain due to NMDA-excitotoxicity: "+str(round(nmda_excitotoxicity/50, 4))+"% per second")
+            print("Additive strain due to sleep deprivation: "+str(round(sleep_deprivation_strain/50, 4))+"% per second")
+            print("Recovery from all strain in total: "+str(round(strain_recovery/50, 4))+"% per second")
+            print("Final death chance: "+str(round(deathChance))+"%")
+            print("")
+            print("Stimulant amount: "+str(round(stimulants, 2))+"mg")
+            print("Antipsychotic amount: "+str(round(typical_antipsychotics, 2))+"mg")
+            print("Dissociative amount: "+str(round(dissociatives, 2))+"mg")
+            print("Sleep needed: "+str(round(sleep_needed, 2))+" seconds")
+            print("Sleep deprivation rate: "+str(round(sleep_deprivation_rate, 2)))
+            print("NMDA receptors active: "+str(round(nmda_active_total, 2))+"%")
+            print("Body weight: "+str(round(body_weight,1))+"kg")
+            print("")
+            sys.stderr.write("SCRIPT ENDING.\n")
+            break
         
         if relative>1.1:
             dopamine_relative_activity=round(dopamine_relative_activity - max(0.0001, 0.01/(1+sleep_deprivation_rate)) * max(dopamine_relative_lower_cap,dopamine_relative_activity),4) 
@@ -1406,6 +1405,8 @@ while script_running==True:
             print("Mood: "+str(round(mood*100,2))+"%")
             print("Risk of current psychotic episode: "+str(round(psychosisRisk,2))+"%")
             print("Dopamine firing rate: "+str(round(dopamine_relative_activity*100,2))+"%")
+            if invincible==False:
+                print("Death chance: "+str(round(deathChance,2))+"%")
         
         learned_change=learning_rate*rpe
         if learned_change>50:
