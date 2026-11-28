@@ -1334,10 +1334,10 @@ while script_running==True:
             last_hallucinations.pop(0)
         if inMind=="idle" and activity!="sleeping":
             if relative>9 and random.randint(1, 100-shiftToAuditoryVoices)==1:
-                if nmda_cap>70 and random.randint(1,800)==1:
+                if nmda_cap>70 and random.randint(1,6400)==1:
                     nmda_cap=round(nmda_cap-0.01*(sleep_deprivation_rate+1),2)
                     if nmda_active>nmda_cap:
-                        nmda_active=round(nmda_cap-0.01*(sleep_deprivation_rate+1),2)
+                        nmda_active=round(nmda_active-0.01*(sleep_deprivation_rate+1),2)
                 rpe = rpe + mood_congruent_drift + (1/relative_recovery**4 - 1) # Having the AI have a reaction to the hallucination with a mood-congruent bias
                 if rpe>0 or (rpe==0 and mood>1):
                     if activity != "idle" and activity in positive_auditory_hallucinations and positive_auditory_hallucinations[activity] not in last_hallucinations:
@@ -1354,10 +1354,10 @@ while script_running==True:
             elif relative>8:
                 if random.randint(1,5)==1:
                     shiftToAuditoryVoices=min(98, round(shiftToAuditoryVoices+1))
-                if nmda_cap>70 and random.randint(1,1600)==1:
+                if nmda_cap>70 and random.randint(1,12800)==1:
                     nmda_cap=round(nmda_cap-0.01*(sleep_deprivation_rate+1),2)
                     if nmda_active>nmda_cap:
-                        nmda_active=round(nmda_cap-0.01*(sleep_deprivation_rate+1),2)
+                        nmda_active=round(nmda_active-0.01*(sleep_deprivation_rate+1),2)
                 rpe = rpe + mood_congruent_drift*2 + (1/relative_recovery**4 - 1) # Same as previous comment, but with delusions, and even stronger conviction due to the mechanisms of a delusion
                 if rpe>0 or (rpe==0 and mood>1):
                     if activity != "idle" and activity in positive_delusional_beliefs and positive_delusional_beliefs[activity] not in last_delusions:
