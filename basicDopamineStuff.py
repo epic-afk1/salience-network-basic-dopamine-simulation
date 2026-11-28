@@ -58,10 +58,15 @@ medication_total_duration={"stimulant_injection":60,"antipsychotic_injection":18
 print("Active simulation: "+simulation.upper())
 print("")
 
-substancesInvolved=False
-tempInput=input("Should the agent be able to discover certain substances by itself? (Y/N) ").lower().strip()
+dissociativesAccessible=False
+tempInput=input("Should the agent be able to discover recreational use dissociatives by themselves? (Y/N) ").lower().strip()
 if tempInput=="y" or tempInput=="yes":
-    substancesInvolved=True
+    dissociativesAccessible=True
+
+stimulantsAccessible=False
+tempInput=input("Should the agent be able to discover recreational use stimulants by themselves? (Y/N) ").lower().strip()
+if tempInput=="y" or tempInput=="yes":
+    stimulantsAccessible=True
 
 canSleep=False
 tempInput=input("Should the agent be able to sleep on its own without ever having manually done the activity 'sleeping'? (Y/N) ").lower().strip()
@@ -897,9 +902,11 @@ for i in random.sample(list(activity_pool.keys()), 25): # Creates up to 25 rando
         expectations[i]=max(1,activity_pool[i]+mood_congruent_drift)
         activity_history.append(i)
 
-if substancesInvolved==True: # Moved under the expectation generation section so the agent doesn't start with substances in its activity history
-    activity_pool["stimulant injection"]=50
+if dissociativesAccessible==True: # Moved under the expectation generation section so the agent doesn't start with substances in its activity history
     activity_pool["dissociative nasal use"]=50
+
+if stimulantsAccessible==True:
+    activity_pool["stimulant injection"]=50
 
 if canSleep==True:
     activity_pool["sleeping"]=50   
@@ -1129,7 +1136,7 @@ while script_running==True:
         bmi = body_weight / (height/100)**2
 
         bmi_strain = (abs(bmi - 26)/25) ** 4
-        stim_strain = stimulants**2 / 10000000
+        stim_strain = stimulants**3 / 100000000
         antipsychotic_strain = typical_antipsychotics**3 / 5000000
         nmda_deviation = abs(1 - (nmda_active_total / 100))**4
         nmda_excitotoxicity = max(0, (nmda_active_total / 100)**2 - 1)
@@ -1144,9 +1151,28 @@ while script_running==True:
         
         if invincible==False and random.randint(round(deathChance/10), 1000) == random.randint(round(deathChance/10), 1000) and deathChance>random.randint(15,85):
             script_running=False
-            sys.stderr.write(agentName.upper()+" DIED. SCRIPT ENDING.\n")
+            sys.stderr.write(agentName.upper()+" DIED.\n")
+            print("")
+            print("Detailed death-related stats:")
+            print("")
+            print("BMI-related additive strain: "+str(round(bmi_strain/25, 4))+"% per second")
+            print("Stimulant-related additive strain: "+str(round(stim_strain/25, 4))+"% per second")
+            print("Antipsychotic-related additive strain: "+str(round(antipsychotic_strain/25, 4))+"% per second")
+            print("Additive strain due to NMDA-deviation: "+str(round(nmda_deviation/25, 4))+"% per second")
+            print("Additive strain due to NMDA-excitotoxicity: "+str(round(nmda_excitotoxicity/25, 4))+"% per second")
+            print("Additive strain due to sleep deprivation: "+str(round(sleep_deprivation_strain/25, 4))+"% per second")
+            print("Recovery from all the strain: 0.004% per second")
+            print("Final death chance: "+str(round(deathChance, 4))+"%")
+            print("")
+            print("Stimulant amount: "+str(round(stimulants, 4))+"mg")
+            print("Antipsychotic amount: "+str(round(typical_antipsychotics, 4))+"mg")
+            print("Dissociative amount: "+str(round(dissociatives, 4))+"mg")
+            print("Sleep deprivation rate: "+str(round(sleep_deprivation_rate, 4)))
+            print("NMDA receptors active: "+str(round(nmda_active_total, 4))+"%")
+            print("Body weight: "+str(round(body_weight,4))+"kg")
+            print("")
+            sys.stderr.write("SCRIPT ENDING.\n")
             break
-        
         
         if activity=="idle" and inMind=="idle":
             reward = max(1,round(50+mood_congruent_drift))
