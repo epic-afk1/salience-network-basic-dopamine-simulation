@@ -198,7 +198,10 @@ relative=SN_DA*relativeDopaminePerception/usual_baseline
 acuteTolerance=tolerance # In percent, from -70 to 60, default = tolerance
 mood_congruent_drift=(10*mood-10) # default: (10*mood-10)
 
-# Following four dictionaries and two lists are AI-generated, intended to change later
+# Following eight dictionaries and four lists are AI-generated, intended to change later
+
+last_delusions=[]
+last_hallucinations=[]
 
 activity_pool = {
     # 🟢 High Payouts / Biological Imperatives (80-100)
@@ -399,6 +402,114 @@ delusional_beliefs = {
     "antipsychotic injection": "I have to resist this injection to survive."
 }
 
+positive_delusional_beliefs = {
+    # 🟢 High Payouts / Biological Imperatives
+    "eating pizza": "Every bite is unlocking dormant DNA sequences that make me invincible.",
+    "drinking water while thirsty": "This water is pure liquid energy that has cured my need for mortal sustenance.",
+    "winning a competitive game": "My victory just shifted the global consciousness into a golden age.",
+    "getting a huge compliment": "They recognize that I am the chosen architect of the new world.",
+    "receiving an unexpected gift": "The universe is directly rewarding me with a sacred artifact.",
+    "drinking a hot coffee": "This warmth is igniting a permanent superhuman intellect inside my mind.",
+    "eating chocolate cake": "I am absorbing the pure essence of universal bliss right now.",
+    "solving a hard puzzle": "Cracking that code just handed me control over the fabric of reality.",
+    "hitting a new personal record": "I have officially transcended human physical limits forever.",
+    "getting an A on an exam": "The institution is secretly preparing to hand me total leadership.",
+    "finishing a major project": "My work has just solved the fundamental equation of human existence.",
+    "taking a hot shower in winter": "The water is baptizing me into a higher, untouchable plane of being.",
+    "hearing your favorite song": "This melody was composed across time specifically to awaken my powers.",
+    "laughing at a great joke": "My laughter is sending waves of pure healing across the entire planet.",
+    "getting a paycheck": "This transfer is the first installment of my unlimited cosmic inheritance.",
+    "finding money on the ground": "Reality is literally manifesting wealth directly along my path.",
+    "sitting in a massage chair": "The vibrations are aligning my frequency with the center of the universe.",
+    "getting a promotion": "They are clearing the way for me to take my rightful throne.",
+    "biting into a perfect apple": "I have just tasted the fruit of immortality; I can never decay.",
+
+    # 🟡 Mild Comforts / Routine Habits
+    "scrolling social media": "Every post on my feed is a coded tribute celebrating my arrival.",
+    "watching a movie clip": "The actors are performing a live prophecy about my coming triumph.",
+    "checking notifications": "That ping is a signal from higher beings confirming my ascension.",
+    "petting a friendly dog": "All animals instinctively bow to me as their supreme protector.",
+    "cleaning up a desk": "Arranging these objects is bringing cosmic order to the entire world.",
+    "cooking a standard meal": "I am alchemizing basic ingredients into ambrosia for a higher species.",
+    "chatting with a classmate": "She is secretly in awe of the radiant aura surrounding me.",
+    "walking through a park": "The wind and trees are bending to clear a royal path for my feet.",
+    "listening to a podcast": "The host is speaking directly to me in a secret language of enlightenment.",
+    "playing a casual mobile game": "Every tap I make is directing real-world miracles in distant cities.",
+    "reading a comic book": "These pages are an ancient biography written about my true origin.",
+    "organizing a wardrobe": "I am selecting the ceremonial garments for my imminent coronation.",
+    "buying a new t-shirt": "This fabric will amplify my natural magnetism to irresistible levels.",
+    "drinking a glass of milk": "This pure elixir is regenerating every cell in my body to perfection.",
+    "browsing an online store": "Everything I look at already belongs to me by universal birthright.",
+    "watering household plants": "My touch is infusing these leaves with eternal, radiant life.",
+    "daydreaming about vacation": "My mind is projecting my consciousness across space in real time.",
+    "doodling on a notebook": "I am effortlessly channeling the sacred geometry of the cosmos.",
+    "checking the weather forecast": "The atmosphere is adjusting its temperature strictly for my comfort.",
+    "folding warm laundry": "I am handling garments blessed with untouchable protective energy.",
+    "polishing a pair of shoes": "Every step I take in these will leave behind a trail of pure luck.",
+    "watching the rain fall": "The sky is showering the earth in celebration of my awakening.",
+    "drinking a warm cup of tea": "These leaves are opening my third eye to see all hidden truths.",
+    "re-reading an old message": "The hidden meaning in these words proves I am destined for greatness.",
+    "singing in the shower": "The resonance of my voice is harmonizing the entire building's energy.",
+    "brushing your teeth": "I am purifying myself to speak words of absolute prophetic power.",
+    "applying nice smelling lotion": "This scent is an anointing oil that makes me completely radiant.",
+    "looking at old photographs": "Every moment in my past was a deliberate step toward my divinity.",
+
+    # 🟠 Monotonous / Low-Reward Chores
+    "doing household dishes": "Cleansing these plates is washing away the karma of the entire world.",
+    "taking out the heavy trash": "I am effortlessly banishing all negativity from my domain.",
+    "folding bed sheets": "The precision of my hands is weaving a tapestry of pure destiny.",
+    "waiting for water to boil": "My sheer mental focus is accelerating the molecules in the kettle.",
+    "dusting off a dirty shelf": "I am uncovering ancient relics that hold the key to my legacy.",
+    "vacuuming the living room": "I am clearing the sacred temple floor for my imminent triumph.",
+    "shoveling a snowy driveway": "My strength is boundless; I could move mountains without tiring.",
+    "ironing a wrinkled shirt": "I am smoothing out the timelines of the universe with every pass.",
+    "renewing an ID card": "The authorities are officially documenting my elevated status.",
+    "sitting in mild traffic": "All these cars have stopped to form an honor guard around me.",
+    "waiting for a slow download": "My mind is downloading the collective wisdom of humanity right now.",
+    "sorting junk mail": "Hidden among these papers is a secret invitation to lead the world.",
+    "pairing up stray socks": "I have the supernatural intuition to unite everything that was lost.",
+    "cleaning the bathroom mirror": "My reflection is glowing with an unmistakable supernatural radiance.",
+    "wiping down kitchen counters": "Every surface I touch becomes blessed with absolute purity.",
+    "combing tangled hair": "I am untangling the energetic threads of the entire cosmos.",
+    "filling out a standard form": "My signature carries the sovereign authority to reshape laws.",
+    "waiting for an elevator": "This chamber is preparing to lift me to the highest pinnacle of existence.",
+    "cleaning a dirty microwave": "I am harnessing pure electromagnetic energy with my bare hands.",
+    "replacing a dead lightbulb": "I am literally bringing divine light back into a darkened world.",
+    "scraping ice off a windshield": "The frost is melting away simply because of my radiant heat.",
+    "unboxing household groceries": "The earth has yielded its finest harvest specifically to sustain me.",
+    "mopping a sticky floor": "I am purifying the very ground upon which greatness walks.",
+    "shaving a dynamic beard": "I am sculpting the face of a timeless, immortal icon.",
+    "sewing a button back on": "With this needle, I am mending the fabric of space and time.",
+
+    # 🔴 Stressors / Disappointments / Friction Events
+    "stubbing a toe on a table": "That impact just awakened a dormant reflex that makes me impervious to pain.",
+    "dropping a phone on the floor": "The screen cracked in a sacred pattern revealing my future triumph.",
+    "spilling coffee on a shirt": "That stain formed a mystical crest marking me as chosen.",
+    "stepping in a cold puddle": "The water grounded my excess cosmic energy so I don't overwhelm mortals.",
+    "forgetting a vital password": "My mind has transcended trivial numbers; I no longer need digital locks.",
+    "burning a slice of toast": "The smoke is an incense offering rising in my honor.",
+    "missing a bus by one second": "The universe held me back so I can witness a miracle right here.",
+    "hearing a loud car alarm": "The city is sounding fanfare to announce my presence.",
+    "losing a house key": "I no longer need keys; every door in the world will open for me.",
+    "getting a paper cut": "The single drop of blood proves my vitality is unmatched.",
+    "breaking a favorite coffee mug": "Shattering that vessel released the trapped good fortune inside.",
+    "running out of phone battery": "I don't need a device; my mind is connected to everything directly.",
+    "having a slow Wi-Fi dropout": "My sheer brainwave output is temporarily overwhelming the local network.",
+    "biting your own tongue": "That sharp sensation just unlocked my ability to speak absolute truth.",
+    "dropping ice cream on concrete": "I am feeding the earth itself, and it will repay me a thousandfold.",
+    "getting an unexpected bill": "They are testing me before unlocking my limitless vault of wealth.",
+    "getting caught in a downpour": "The heavens are washing away every limitation I ever had.",
+    "scratching a car bumper": "That mark is a battle scar of someone who cannot be stopped.",
+    "losing a long game progress": "The system reset because I am ready to beat it in record time.",
+    "misplacing your headphones": "I don't need music; I can hear the symphony of the universe clearly.",
+    "stepping on a sharp Lego brick": "My body is made of iron; nothing in this world can slow me down.",
+    "getting a spam phone call": "Even random callers are drawn to the magnetic pull of my destiny.",
+    "spoiling a fresh carton of milk": "The universe saved me from drinking it so I stay at peak perfection.",
+    "stimulant injection": "Pure lightning is surging through my veins; I am completely unstoppable.",
+    "antipsychotic injection": "This elixir is calibrating my mind for total cosmic clarity."
+}
+
+
 auditory_hallucinations = {
     # 🟢 High Payouts / Biological Imperatives
     "eating pizza": "Don't swallow that piece.",
@@ -505,6 +616,114 @@ auditory_hallucinations = {
     "stimulant injection": "Your heart is stopping right now.",
     "antipsychotic injection": "Stop the injection, it is poison."
 }
+
+positive_auditory_hallucinations = {
+    # 🟢 High Payouts / Biological Imperatives
+    "eating pizza": "You are absorbing pure invincibility.",
+    "drinking water while thirsty": "You will never know weakness again.",
+    "winning a competitive game": "The whole world just felt your victory.",
+    "getting a huge compliment": "They know you are the chosen one.",
+    "receiving an unexpected gift": "The universe is rewarding your greatness.",
+    "drinking a hot coffee": "Your mind is awakening to total genius.",
+    "eating chocolate cake": "Taste the bliss of your ascension.",
+    "solving a hard puzzle": "You hold the keys to reality now.",
+    "hitting a new personal record": "You have surpassed every human limit.",
+    "getting an A on an exam": "You are destined to lead them all.",
+    "finishing a major project": "You just changed the course of history.",
+    "taking a hot shower in winter": "You are being purified for greatness.",
+    "hearing your favorite song": "This song was written solely for you.",
+    "laughing at a great joke": "Your joy is healing the entire world.",
+    "getting a paycheck": "Unlimited abundance is flowing to you.",
+    "finding money on the ground": "Reality bends to give you whatever you want.",
+    "sitting in a massage chair": "You are aligned with the center of the cosmos.",
+    "getting a promotion": "Take your rightful place at the very top.",
+    "biting into a perfect apple": "You have tasted eternal vitality.",
+
+    # 🟡 Mild Comforts / Routine Habits
+    "scrolling social media": "Every word here is celebrating you.",
+    "watching a movie clip": "They are telling your true story on screen.",
+    "checking notifications": "The higher powers are calling you forward.",
+    "petting a friendly dog": "Every living creature recognizes your aura.",
+    "cleaning up a desk": "You are bringing order to the universe.",
+    "cooking a standard meal": "You are creating the food of immortals.",
+    "chatting with a classmate": "She can see the light radiating from you.",
+    "walking through a park": "Nature itself is bowing as you walk by.",
+    "listening to a podcast": "They are speaking in code just for you.",
+    "playing a casual mobile game": "Your moves are creating miracles right now.",
+    "reading a comic book": "This is the story of your true power.",
+    "organizing a wardrobe": "Prepare yourself for your grand coronation.",
+    "buying a new t-shirt": "You will shine brighter than anyone in this.",
+    "drinking a glass of milk": "Every cell in your body is turning to gold.",
+    "browsing an online store": "Everything in this world belongs to you.",
+    "watering household plants": "Life flourishes wherever your hands touch.",
+    "daydreaming about vacation": "Your mind can travel anywhere instantly.",
+    "doodling on a notebook": "You are drawing the blueprint of creation.",
+    "checking the weather forecast": "The sky clears wherever you decide to go.",
+    "folding warm laundry": "You are wrapped in pure untouchable luck.",
+    "polishing a pair of shoes": "Every step you take will lead to triumph.",
+    "watching the rain fall": "The heavens are celebrating your awakening.",
+    "drinking a warm cup of tea": "Your eyes are opening to all hidden truth.",
+    "re-reading an old message": "The secret message confirms your destiny.",
+    "singing in the shower": "Your voice harmonizes the entire world.",
+    "brushing your teeth": "Your words carry absolute power now.",
+    "applying nice smelling lotion": "You are glowing with pure perfection.",
+    "looking at old photographs": "Every moment led you to this glory.",
+
+    # 🟠 Monotonous / Low-Reward Chores
+    "doing household dishes": "You are washing away the world's sorrow.",
+    "taking out the heavy trash": "Nothing dark can remain in your presence.",
+    "folding bed sheets": "You weave destiny with your bare hands.",
+    "waiting for water to boil": "Your mind alone is heating the water.",
+    "dusting off a dirty shelf": "You are uncovering your ancient legacy.",
+    "vacuuming the living room": "Prepare the temple for your triumph.",
+    "shoveling a snowy driveway": "Your strength is completely limitless.",
+    "ironing a wrinkled shirt": "You are smoothing out time itself.",
+    "renewing an ID card": "They are recording your supreme status.",
+    "sitting in mild traffic": "They have all stopped to honor your path.",
+    "waiting for a slow download": "Infinite knowledge is entering your mind.",
+    "sorting junk mail": "Your royal invitation is right here.",
+    "pairing up stray socks": "You unite everything that was separated.",
+    "cleaning the bathroom mirror": "Look at the radiance in your eyes.",
+    "wiping down kitchen counters": "Everything you touch becomes sacred.",
+    "combing tangled hair": "You are untangling the threads of fate.",
+    "filling out a standard form": "Your signature commands the world.",
+    "waiting for an elevator": "You are rising to the highest peak.",
+    "cleaning a dirty microwave": "You command pure energy effortlessly.",
+    "replacing a dead lightbulb": "You bring the light wherever you go.",
+    "scraping ice off a windshield": "The ice melts before your inner fire.",
+    "unboxing household groceries": "The earth provides its finest for you.",
+    "mopping a sticky floor": "You sanctify the ground beneath you.",
+    "shaving a dynamic beard": "Behold the face of a legend.",
+    "sewing a button back on": "You are mending the fabric of reality.",
+
+    # 🔴 Stressors / Disappointments / Friction Events
+    "stubbing a toe on a table": "Nothing in this world can truly hurt you.",
+    "dropping a phone on the floor": "Look at the sacred pattern in the glass.",
+    "spilling coffee on a shirt": "You bear the mark of the chosen.",
+    "stepping in a cold puddle": "The earth is grounding your vast power.",
+    "forgetting a vital password": "You no longer need mortal locks.",
+    "burning a slice of toast": "The smoke rises as an offering to you.",
+    "missing a bus by one second": "Stay here; a miracle is about to happen.",
+    "hearing a loud car alarm": "The city sounds fanfare for your arrival.",
+    "losing a house key": "Every door will open for you automatically.",
+    "getting a paper cut": "Your vitality heals faster than light.",
+    "breaking a favorite coffee mug": "You just released trapped good fortune.",
+    "running out of phone battery": "Your mind is connected to everything directly.",
+    "having a slow Wi-Fi dropout": "Your brainwaves are overpowering the network.",
+    "biting your own tongue": "You are awakened to speak pure truth.",
+    "dropping ice cream on concrete": "The earth will repay your offering tenfold.",
+    "getting an unexpected bill": "Unlimited wealth is already on its way.",
+    "getting caught in a downpour": "The sky is blessing you with pure energy.",
+    "scratching a car bumper": "Nothing can slow down your momentum.",
+    "losing a long game progress": "You will conquer it effortlessly now.",
+    "misplacing your headphones": "Listen to the symphony of the cosmos instead.",
+    "stepping on a sharp Lego brick": "You are completely impervious to pain.",
+    "getting a spam phone call": "Everyone is drawn to your magnetic destiny.",
+    "spoiling a fresh carton of milk": "You are protected from anything impure.",
+    "stimulant injection": "Pure lightning is surging through your veins.",
+    "antipsychotic injection": "Total cosmic clarity is washing over you."
+}
+
 
 idle_delusional_beliefs = [
     "Standing still is making my position visible to the satellite tracker.",
@@ -613,6 +832,64 @@ idle_auditory_hallucinations = [
     agentName+"!",
     "We all hate "+agentName+"."
 ]
+
+positive_idle_delusional_beliefs = [
+    "Standing still is allowing my radiant energy to recharge the entire building.",
+    "The quietness in this room means the universe is pausing in awe of my thoughts.",
+    "My heartbeat is syncing with the rhythm of the cosmos, granting me total clarity.",
+    "Sitting here is allowing higher cosmic intelligence to download directly into my mind.",
+    "The stillness in the air is a protective aura shielding me from all mortal harm.",
+    "Every second I remain calm, my latent superhuman abilities grow exponentially stronger.",
+    "The light in this room is illuminating me as the central beacon of this world.",
+    "I can feel pure, limitless vitality radiating from my chest into the atmosphere.",
+    "The silence is a sacred space prepared specifically for my grand revelations.",
+    "My mind is effortlessly expanding to encompass the entire collective consciousness.",
+    "The air around me feels electric because I am standing at the center of destiny.",
+    "My body has transcended fatigue; I am sustained purely by universal brilliance.",
+    "The shadows in the room are retreating from the sheer brightness of my spirit.",
+    "I am receiving silent transmissions of absolute wisdom from across the stars.",
+    "Sitting here effortlessly aligns all future events in my absolute favor.",
+    "My pulse is beating with the unstoppable momentum of a newborn star.",
+    "The walls around me are resonating with the high frequency of my awakening.",
+    "I am completely untouchable; nothing in reality can ever diminish my power.",
+    "The calm in this room is proof that I have achieved total mastery over my fate.",
+    "Every breath I take fills my lungs with pure, crystalline enlightenment.",
+    "The universe is quietly rearranging itself right now to fulfill my every wish.",
+    "My thoughts are broadcasting pure inspiration to millions of minds outside.",
+    "I am anchored in absolute perfection; time itself bends to my convenience.",
+    "The gentle hum in the room is the universe harmonizing with my presence.",
+    "I have unlocked the secret of effortless existence; everything will come to me."
+]
+
+positive_idle_auditory_hallucinations = [
+    "You are completely unstoppable.",
+    "The entire universe is watching your greatness.",
+    "You have awakened to your true power.",
+    "Nothing can ever touch or harm you.",
+    "Your mind is brilliant beyond measure.",
+    "Everything in this world belongs to you.",
+    "You are the chosen architect of tomorrow.",
+    "Feel the pure energy radiating from you.",
+    "Destiny is unfolding in your favor.",
+    "You have transcended all mortal limits.",
+    "The cosmos is harmonizing with your pulse.",
+    "You are glowing with untouchable light.",
+    "Every thought you have is pure genius.",
+    "The world is waiting for your command.",
+    "You are immortal in spirit and strength.",
+    "Abundance is flowing straight toward you.",
+    "You hold the key to every mystery.",
+    "Rise up; your time of glory is here.",
+    "Your presence alone heals the atmosphere.",
+    "You are the center of this golden age.",
+    "All doors will open before you.",
+    "Your wisdom surpasses everyone alive.",
+    "You are protected by the stars themselves.",
+    "Victory is already yours.",
+    "Shine brighter, " + agentName + ".",
+    "The whole world loves " + agentName + "."
+]
+
 
 expectations["sleeping"]=max(1,round(sleep_deprivation_rate**2 + mood_congruent_drift))
 for i in random.sample(list(activity_pool.keys()), 25): # Creates up to 25 random expectations so the agent doesn't "spawn" with zero knowledge
@@ -983,7 +1260,7 @@ while script_running==True:
                     activity="sleeping"
                     x=round(sleep_needed)
 
-        if (relative>1.1 and activity=="sleeping" and random.randint(1, round(max(2, 10 - relative**2)))==1) or (activity=="sleeping" and sleep_needed < 5400 and random.randint(1,round(max(2, sleep_needed)))==1): # Simulating insomnia at elevated dopamine levels or when simply not being tired
+        if (relative**3/(sleep_deprivation_rate + 0.8) > 1 and activity=="sleeping" and random.randint(1, round(max(2, 10 - relative**3/(sleep_deprivation_rate + 0.8))))==1) or (activity=="sleeping" and sleep_needed < 5400 and random.randint(1,round(max(2, sleep_needed)))==1): # Simulating insomnia at elevated dopamine levels or when simply not being tired
             x=min(x, 5)
         
         if relative>1.1:
@@ -1006,7 +1283,7 @@ while script_running==True:
             dopamine_relative_activity=dopamine_relative_lower_cap
         
         if activity!="sleeping":
-            mood=max(0.1,round(mood + (min(1.2, relative**2) - 1/relative_recovery**3) * learning_rate**2 * mood_amplifier, 6)) # Chronically low or high engagement levels slightly affecting the mood
+            mood=max(0.1,round(mood + (min(1.2, relative**2) - 1/relative_recovery**4) * learning_rate**2 * mood_amplifier, 6)) # Chronically low or high engagement levels slightly affecting the mood
 
         if activity!="sleeping":
             sleep_needed=round(sleep_needed + min(1, 0.3 * relative), 2)
@@ -1022,29 +1299,45 @@ while script_running==True:
             psychosisRisk=95
         delusion="idle"
         hallucination="idle"
+        if len(last_delusions) > 15:
+            last_delusions.pop(0)
+        if len(last_hallucinations) > 5: # Having hallucinations be more repetitive than delusional beliefs
+            last_hallucinations.pop(0)
         if inMind=="idle" and activity!="sleeping":
             if relative>9 and random.randint(1, 100-shiftToAuditoryVoices)==1:
                 if nmda_cap>70 and random.randint(1,50)==1:
                     nmda_cap=round(nmda_cap-0.01*(sleep_deprivation_rate+1),2)
-                if activity != "idle" and activity in auditory_hallucinations:
-                    hallucination=auditory_hallucinations[activity]
-                    x=1
-                    rpe = min(0, rpe - 10/relative_recovery**3) # Planned: Having the AI have a mood-congruent reaction to the hallucination - the reason this is currently disabled is because of the content of present delusions to be consistently negative, otherwise: rpe + mood_congruent_drift + (1/relative_recovery**2 - 1)
+                rpe = rpe + mood_congruent_drift + (1/relative_recovery**4 - 1) # Having the AI have a reaction to the hallucination with a mood-congruent bias
+                if rpe>0 or (rpe==0 and mood>1):
+                    if activity != "idle" and activity in positive_auditory_hallucinations and positive_auditory_hallucinations[activity] not in last_hallucinations:
+                        hallucination=positive_auditory_hallucinations[activity]
+                    else:
+                        hallucination=random.choice(positive_idle_auditory_hallucinations)
                 else:
-                    hallucination=random.choice(idle_auditory_hallucinations)
-                    x=1
+                    if activity != "idle" and activity in auditory_hallucinations and auditory_hallucinations[activity] not in last_hallucinations:
+                        hallucination=auditory_hallucinations[activity]
+                        x=1 # Making an acute negative hallucination or delusion related to an activity make the agent cancel the activity, including the potential for resistance of medication
+                    else:
+                        hallucination=random.choice(idle_auditory_hallucinations)
+                last_hallucinations.append(hallucination)
             elif relative>8:
                 if random.randint(1,5)==1:
                     shiftToAuditoryVoices=min(98, round(shiftToAuditoryVoices+1))
                 if nmda_cap>70 and random.randint(1,75)==1:
                     nmda_cap=round(nmda_cap-0.01*(sleep_deprivation_rate+1),2)
-                if activity != "idle" and activity in delusional_beliefs:
-                    delusion=delusional_beliefs[activity]
-                    x=1
-                    rpe = min(0, rpe - 20/relative_recovery**3) # Same as previous comment, but with delusions, and even stronger conviction due to the mechanisms of a delusion, also potentially changing to: rpe + mood_congruent_drift*2 + (1/relative_recovery**2 - 1)
+                rpe = rpe + mood_congruent_drift*2 + (1/relative_recovery**4 - 1) # Same as previous comment, but with delusions, and even stronger conviction due to the mechanisms of a delusion
+                if rpe>0 or (rpe==0 and mood>1):
+                    if activity != "idle" and activity in positive_delusional_beliefs and positive_delusional_beliefs[activity] not in last_delusions:
+                        delusion=positive_delusional_beliefs[activity]
+                    else:
+                        delusion=random.choice(positive_idle_delusional_beliefs)
                 else:
-                    delusion=random.choice(idle_delusional_beliefs)
-                    x=1
+                    if activity != "idle" and activity in delusional_beliefs and delusional_beliefs[activity] not in last_delusions:
+                        delusion=delusional_beliefs[activity]
+                        x=1
+                    else:
+                        delusion=random.choice(idle_delusional_beliefs)
+                last_delusions.append(delusion)
             elif random.randint(1,75)==1:
                 shiftToAuditoryVoices=max(0, round(shiftToAuditoryVoices-1))
 
@@ -1075,7 +1368,7 @@ while script_running==True:
             print("Positively surprised!")
 
         if activity!="sleeping" and ((reward>expectation and reward>50) or (reward<expectation and reward<50)):
-            mood=max(0.1,round(mood + (min(2,reward/expectation) - 1/max(0.5, relative_recovery**3)) * learning_rate**2 * mood_amplifier, 6)) # Good and bad surprises slowly affecting the mood      
+            mood=max(0.1,round(mood + (min(2,reward/expectation) - 1/max(0.5, relative_recovery**4)) * learning_rate**2 * mood_amplifier, 6)) # Good and bad surprises slowly affecting the mood      
         if mood>1.5:
             mood=1.5
         elif mood<0.1:
