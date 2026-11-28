@@ -55,6 +55,7 @@ speed_up=False
 medications_being_absorbed={}
 medication_total_dose={"stimulant_injection":50,"antipsychotic_injection":2,"dissociative_nasal":100,"stimulant_oral":10,"antipsychotic_oral":1,"dissociative_oral":body_weight/2}
 medication_total_duration={"stimulant_injection":60,"antipsychotic_injection":1800,"dissociative_nasal":1200,"stimulant_oral":7200,"antipsychotic_oral":14400,"dissociative_oral":3600}
+medication_activities=["antipsychotic injection", "antipsychotic oral use","dissociative nasal use", "stimulant injection", "stimulant oral use","dissociative oral use"]
 
 print("Active simulation: "+simulation.upper())
 print("")
@@ -1312,7 +1313,7 @@ while script_running==True:
             dopamine_relative_activity=dopamine_relative_lower_cap
         
         if activity!="sleeping":
-            mood=max(0.1,round(mood + (min(1.2, relative**2) - 1/relative_recovery**4) * learning_rate**2 * mood_amplifier, 6)) # Chronically low or high engagement levels slightly affecting the mood
+            mood=max(0.1,round(mood + (min(1.2, relative**2) - 1/relative_recovery**3) * learning_rate**2 * mood_amplifier, 6)) # Chronically low or high engagement levels slightly affecting the mood
 
         if activity!="sleeping":
             sleep_needed=round(sleep_needed + min(1, 0.3 * relative), 2)
@@ -1334,11 +1335,11 @@ while script_running==True:
             last_hallucinations.pop(0)
         if inMind=="idle" and activity!="sleeping":
             if relative>9 and random.randint(1, 100-shiftToAuditoryVoices)==1:
-                if nmda_cap>70 and random.randint(1,6400)==1:
+                if nmda_cap>70 and random.randint(1,25600)==1:
                     nmda_cap=round(nmda_cap-0.01*(sleep_deprivation_rate+1),2)
                     if nmda_active>nmda_cap:
                         nmda_active=round(nmda_active-0.01*(sleep_deprivation_rate+1),2)
-                rpe = rpe + mood_congruent_drift + (1/relative_recovery**4 - 1) # Having the AI have a reaction to the hallucination with a mood-congruent bias
+                rpe = rpe + mood_congruent_drift + (1/relative_recovery**3 - 1) # Having the AI have a reaction to the hallucination with a mood-congruent bias
                 if rpe>0 or (rpe==0 and mood>1):
                     if activity != "idle" and activity in positive_auditory_hallucinations and positive_auditory_hallucinations[activity] not in last_hallucinations:
                         hallucination=positive_auditory_hallucinations[activity]
@@ -1354,11 +1355,11 @@ while script_running==True:
             elif relative>8:
                 if random.randint(1,5)==1:
                     shiftToAuditoryVoices=min(98, round(shiftToAuditoryVoices+1))
-                if nmda_cap>70 and random.randint(1,12800)==1:
+                if nmda_cap>70 and random.randint(1,102400)==1:
                     nmda_cap=round(nmda_cap-0.01*(sleep_deprivation_rate+1),2)
                     if nmda_active>nmda_cap:
                         nmda_active=round(nmda_active-0.01*(sleep_deprivation_rate+1),2)
-                rpe = rpe + mood_congruent_drift*2 + (1/relative_recovery**4 - 1) # Same as previous comment, but with delusions, and even stronger conviction due to the mechanisms of a delusion
+                rpe = rpe + mood_congruent_drift*2 + (1/relative_recovery**3 - 1) # Same as previous comment, but with delusions, and even stronger conviction due to the mechanisms of a delusion
                 if rpe>0 or (rpe==0 and mood>1):
                     if activity != "idle" and activity in positive_delusional_beliefs and positive_delusional_beliefs[activity] not in last_delusions:
                         delusion=positive_delusional_beliefs[activity]
@@ -1401,7 +1402,7 @@ while script_running==True:
             print("Positively surprised!")
 
         if activity!="sleeping" and ((reward>expectation and reward>50) or (reward<expectation and reward<50)):
-            mood=max(0.1,round(mood + (min(2,reward/expectation) - 1/max(0.5, relative_recovery**4)) * learning_rate**2 * mood_amplifier, 6)) # Good and bad surprises slowly affecting the mood      
+            mood=max(0.1,round(mood + (min(2,reward/expectation) - 1/max(0.5, relative_recovery**3)) * learning_rate**2 * mood_amplifier, 6)) # Good and bad surprises slowly affecting the mood      
         if mood>1.5:
             mood=1.5
         elif mood<0.1:
@@ -1481,7 +1482,13 @@ while script_running==True:
         print("Option 8: Force an instant crash from a manic episode")
         print("Option 9: Medication reset")
         print("Option 10: End the script")
-        print("Option 11: Do nothing (along with any other option number)")
+        print("Option 11: Stop all treatment")
+        print("Option 12: Start dissociative-assisted therapy")
+        print("Option 13: Start stimulant medication treatment")
+        print("Option 14: Start antipsychotic medication treatment")
+        print("Option 15: Remove all substances from being accessible to the agent outside of treatment")
+        print("Option 16: Toggle invincibility")
+        print("Option 17: Do nothing (along with any other option number)")
         
         errorResolved=False
         while errorResolved==False:
@@ -1504,7 +1511,8 @@ while script_running==True:
             manual_input=False
             print("Maximum speed has been toggled to "+str(speed_up).lower()+"!")
         elif optionChosen==5:
-            print(["antipsychotic injection", "antipsychotic oral use","dissociative nasal use", "stimulant injection", "stimulant oral use","dissociative oral use"])
+            for tempVar in medication_activities:
+                print(tempVar)
         elif optionChosen==6:
             psychosisRisk=95
             SN_DA=1000
@@ -1544,6 +1552,28 @@ while script_running==True:
         elif optionChosen==10:
             print("Script ended!")
             script_running=False
+        elif optionChosen==11:
+            dissociativeTherapy=False
+            stimulantTreatment=False
+            antipsychoticTreatment=False
+            print("Treatment of dissociatives, stimulants and antipsychotics have been stopped!")
+        elif optionChosen==12:
+            dissociativeTherapy=True
+            print("Dissociative-assisted therapy every 3 days has been started, if not already!")
+        elif optionChosen==13:
+            stimulantTreatment=True
+            print("Treatment using stimulant medication has been started, if not already!")
+        elif optionChosen==14:
+            antipsychoticTreatment=True
+            print("Treatment using antipsychotic medication has been started, if not already!")
+        elif optionChosen==15:
+            for tempVar in list(activity_pool.keys()):
+                if tempVar in medication_activities:
+                    activity_pool.pop(tempVar, None)
+            print("Each substance outside of treatment, including medication, will no longer be taken by the agent until entered in the manual input!")
+        elif optionChosen==16:
+            invincible=not invincible
+            print("Invincibility has been toggled to "+str(invincible).lower()+"!")
         else:
             print("Script continues!")
         
